@@ -42,6 +42,41 @@ export class ElevatorDestination extends Component
     }
 }
 
+class ElevatorFalling extends Component
+{
+}
+
+export class ElevatorDropper extends System
+{
+    types = () => [ElevatorFalling];
+
+    update(delta: number): void
+    {
+        this.runOnEntities((entity: Entity) =>
+        {
+            entity.transform.position.y += 40 * (delta / 1000)
+        });
+    }
+
+}
+
+export class ElevatorDestroyer extends System
+{
+    update(delta: number): void
+    {
+        this.runOnEntities((entity: Entity) =>
+        {
+            if (entity.transform.position.y > 400)
+            {
+                // TODO trigger something, cleanup the dead guys etc.
+                entity.destroy();
+            }
+        });
+    }
+
+    types = () => [ElevatorFalling];
+}
+
 export class ElevatorMover extends System
 {
     types = () => [ElevatorDestination, ElevatorComp];
