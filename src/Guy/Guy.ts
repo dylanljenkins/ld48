@@ -1,5 +1,4 @@
 import {AnimatedSpriteController, AnimationEnd, Component, Entity, MathUtil, System} from "lagom-engine";
-import {Component, Entity, LagomGameComponent, MathUtil, Sprite, System} from "lagom-engine";
 import {graph, sprites} from "../LD48";
 import {HellLink, HellNode} from "../graph/Graph";
 import {Link, Node} from "ngraph.graph";

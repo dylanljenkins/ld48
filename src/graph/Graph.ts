@@ -39,7 +39,8 @@ export class HellGraph
                         this.graph.addNode(getNodeName("FLOOR", level, i + 0.5));
                         this.addLink(getNodeName("FLOOR", level, i), getNodeName("FLOOR", level, i + 0.5), {
                             type: "FLOOR",
-                            distance: 0
+                            distance: 0,
+                            elevator: null
                         });
                         break;
                     }
@@ -49,7 +50,8 @@ export class HellGraph
                         this.graph.addNode(getNodeName("FLOOR", level, i + 1));
                         this.addLink(getNodeName("FLOOR", level, i), getNodeName("FLOOR", level, i + 1), {
                             type: "FLOOR",
-                            distance: 0
+                            distance: 0,
+                            elevator: null
                         });
                         break;
                     }
@@ -60,11 +62,13 @@ export class HellGraph
                         this.graph.addNode(getNodeName("FLOOR", level, i + 1));
                         this.addLink(getNodeName("FLOOR", level, i), getNodeName("FLOOR", level, i + 0.5), {
                             type: "FLOOR",
-                            distance: 0
+                            distance: 0,
+                            elevator: null
                         });
                         this.addLink(getNodeName("FLOOR", level, i + 0.5), getNodeName("FLOOR", level, i + 1), {
                             type: "FLOOR",
-                            distance: 0
+                            distance: 0,
+                            elevator: null
                         });
                         break;
                     }
@@ -74,7 +78,8 @@ export class HellGraph
                         this.graph.addNode(getNodeName("FLOOR", level, i + 1));
                         this.addLink(getNodeName("FLOOR", level, i + 0.5), getNodeName("FLOOR", level, i + 1), {
                             type: "FLOOR",
-                            distance: 0
+                            distance: 0,
+                            elevator: null
                         });
                         break;
                     }
