@@ -1,5 +1,5 @@
 import {getNodeName, HellGraph} from "./graph/Graph";
-import {Component, Diagnostics, Entity, Game, MathUtil, Scene, Sprite, SpriteSheet, TextDisp} from "lagom-engine";
+import {Component, Diagnostics, Entity, Game, MathUtil, PIXIComponent, Scene, Sprite, SpriteSheet, TextDisp} from "lagom-engine";
 import spritesheet from './Art/spritesheet.png';
 import {Elevator} from "./Elevator";
 import {GraphLocation, GraphTarget, Guy, Path, Pathfinder} from "./Guy/Guy";
@@ -52,9 +52,11 @@ class MainScene extends Scene
         super.onAdded();
 
         const initialBudget = 1000;
+        const initialEnergyCost = 0;
 
         this.addEntity(new GameManager(initialBudget));
         this.addEntity(new MoneyBoard(50, 50, 1000));
+        this.addEntity(new PowerUseBoard(600, 10, initialEnergyCost));
 
         const guy = new Guy("guy", 100, 200, Layers.GUYS)
         guy.addComponent(new GraphLocation(getNodeName("FLOOR", 4, 1)))
@@ -158,6 +160,21 @@ class MoneyBoard extends Entity
     public updateMoney(newMoney: number)
     {
         this.label.pixiObj.text = this.getScoreText(newMoney);
+    }
+}
+
+class PowerUseBoard extends Entity 
+{
+    constructor(x: number, y: number, private readonly initialValue: number)
+    {
+        super("power", x, y, Layers.SCORE);
+    }
+    
+    onAdded()
+    {
+        super.onAdded();
+        const textbox = new TextDisp(0, 0, this.initialValue.toString(),{fill: 0xffffff});
+        this.addComponent(textbox);
     }
 }
 
