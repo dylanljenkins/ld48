@@ -1,4 +1,4 @@
-import {AnimatedSpriteController, AnimationEnd, Component, Entity, System} from "lagom-engine";
+import {AnimatedSpriteController, AnimationEnd, Component, Entity, System, Timer} from "lagom-engine";
 import {Layers, sprites} from "./LD48";
 
 enum ElevatorStates
@@ -11,7 +11,7 @@ export class Elevator extends Entity
 {
     constructor(readonly startLevel: number, readonly endLevel: number, readonly shaft: number)
     {
-        super("elevator", 120 + 150 * shaft, startLevel * 70 + 50, Layers.ELEVATOR);
+        super("elevator", 100 + 150 * shaft, startLevel * 70 + 50, Layers.ELEVATOR);
     }
 
     onAdded()
@@ -64,14 +64,26 @@ export class ElevatorMover extends System
                 destination.destroy();
 
                 // TODO make this able to handle stops
+                let dest: ElevatorDestination;
                 if (elevator.endLevel == destination.destinationLevel)
                 {
-                    entity.addComponent(new ElevatorDestination(elevator.startLevel, "UP"));
+                    dest = new ElevatorDestination(elevator.startLevel, "UP")
                 } else
                 {
-                    entity.addComponent(new ElevatorDestination(elevator.endLevel, "DOWN"));
-
+                    dest = new ElevatorDestination(elevator.endLevel, "DOWN")
                 }
+
+                entity.addComponent(new SwapDoorState());
+                const timer = entity.addComponent(new Timer(2000, dest, false));
+                timer.onTrigger.register((caller: Timer<ElevatorDestination>, data: ElevatorDestination) =>
+                {
+                    entity.addComponent(new SwapDoorState());
+                    const restartTimer = entity.addComponent(new Timer(500, data, false));
+                    restartTimer.onTrigger.register((caller1, data1) =>
+                    {
+                        caller.parent.addComponent(data1);
+                    });
+                });
             }
         });
     }
