@@ -1,7 +1,19 @@
 import {getNodeName, HellGraph} from "./graph/Graph";
-import {Component, Diagnostics, Entity, Game, MathUtil, Scene, Sprite, SpriteSheet, TextDisp} from "lagom-engine";
+import {
+    Component,
+    Diagnostics,
+    Entity,
+    FrameTriggerSystem,
+    Game,
+    MathUtil,
+    Scene,
+    Sprite,
+    SpriteSheet,
+    TextDisp,
+    TimerSystem
+} from "lagom-engine";
 import spritesheet from './Art/spritesheet.png';
-import {Elevator} from "./Elevator";
+import {DoorStateSystem, Elevator} from "./Elevator";
 import {GraphLocation, GraphTarget, Guy, GuyMover, Path, Pathfinder} from "./Guy/Guy";
 
 export const sprites = new SpriteSheet(spritesheet, 16, 16);
@@ -41,7 +53,7 @@ class ElevatorNode extends Entity
     onAdded()
     {
         super.onAdded();
-        this.addComponent(new Sprite(sprites.texture(3, 1, 16 ,16)));
+        this.addComponent(new Sprite(sprites.texture(3, 1, 16, 16)));
     }
 }
 
@@ -57,9 +69,16 @@ class MainScene extends Scene
         super.onAdded();
 
         const initialBudget = 1000;
+        const initialEnergyCost = 0;
 
-        this.addEntity(new GameManager(initialBudget));
+        this.addGlobalSystem(new TimerSystem());
+        this.addGlobalSystem(new FrameTriggerSystem());
+
+        this.addSystem(new DoorStateSystem());
+
+        this.addEntity(new GameManager(initialBudget, initialEnergyCost));
         this.addEntity(new MoneyBoard(50, 50, 1000));
+        this.addEntity(new PowerUseBoard(600, 10, initialEnergyCost));
 
         const guy = new Guy("guy", 100, 200, Layers.GUYS)
         guy.addComponent(new GraphLocation(getNodeName("FLOOR", 4, 1)))
@@ -68,6 +87,8 @@ class MainScene extends Scene
         this.addEntity(guy);
 
         this.addGUIEntity(new Diagnostics("white", 5, true));
+
+        this.addEntity(new Elevator(200, 200));
 
         this.addBackground();
         this.makeFloors();
@@ -95,7 +116,7 @@ class MainScene extends Scene
         {
             for (let j = 0; j < 360 / 16; j++)
             {
-                background.addComponent(new Sprite(sprites.texture(2 + MathUtil.randomRange(0, 6), 0, 16, 16),
+                background.addComponent(new Sprite(sprites.texture(1 + MathUtil.randomRange(0, 7), 0, 16, 16),
                     {xOffset: i * 16, yOffset: j * 16}));
             }
         }
@@ -115,17 +136,20 @@ class MainScene extends Scene
 class GameManager extends Entity
 {
     initialBudget: number;
+    initialEnergyUse: number;
 
-    constructor(initialBudget: number)
+    constructor(initialBudget: number, initialEnergyUse: number)
     {
         super("Manager");
         this.initialBudget = initialBudget;
+        this.initialEnergyUse = initialEnergyUse;
     }
 
     onAdded()
     {
         super.onAdded();
         this.addComponent(new Budget(this.initialBudget));
+        this.addComponent(new EnergyUsed(this.initialEnergyUse));
     }
 }
 
@@ -137,6 +161,17 @@ class Budget extends Component
     {
         super();
         this.moneyLeft = initialBudget;
+    }
+}
+
+class EnergyUsed extends Component
+{
+    energyUsed: number;
+
+    constructor(initialEnergyUse: number)
+    {
+        super();
+        this.energyUsed = initialEnergyUse;
     }
 }
 
@@ -167,12 +202,17 @@ class MoneyBoard extends Entity
     }
 }
 
-class ElevatorDoor extends Entity
+class PowerUseBoard extends Entity
 {
+    constructor(x: number, y: number, private readonly initialValue: number)
+    {
+        super("power", x, y, Layers.SCORE);
+    }
+
     onAdded()
     {
         super.onAdded();
-
-        this.addComponent(new Sprite(sprites.textureFromIndex(1)));
+        const textbox = new TextDisp(0, 0, this.initialValue.toString(), {fill: 0xffffff});
+        this.addComponent(textbox);
     }
 }
