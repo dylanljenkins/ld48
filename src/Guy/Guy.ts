@@ -1,4 +1,4 @@
-import {Component, Entity, MathUtil, Sprite, System} from "lagom-engine";
+import {AnimatedSpriteController, AnimationEnd, Component, Entity, MathUtil, System} from "lagom-engine";
 import {graph, sprites} from "../LD48";
 import {HellLink, HellNode} from "../graph/Graph";
 import {Link, Node} from "ngraph.graph";
@@ -9,7 +9,20 @@ export class Guy extends Entity
     {
         super.onAdded();
 
-        this.addComponent(new Sprite(sprites.texture(0, 0, 8, 8)));
+        this.addComponent(new AnimatedSpriteController(1, [
+            {
+                id: 0,
+                textures: [sprites.texture(0, 0, 8, 8)]
+            },
+            {
+                id: 1,
+                textures: [sprites.texture(0, 0, 8, 8),
+                    sprites.textureFromPoints(8, 0, 8, 8)],
+                config: {
+                    animationEndAction: AnimationEnd.LOOP,
+                    animationSpeed: 100
+                }
+            }]));
     }
 }
 
@@ -57,13 +70,12 @@ export class GuyMover extends System
 {
     readonly speed = 1;
 
-    types = () => [Path, GraphLocation];
+    types = () => [Path, GraphLocation, AnimatedSpriteController];
 
     update(delta: number)
     {
-        this.runOnEntities((entity: Entity, path: Path, location: GraphLocation) =>
+        this.runOnEntities((entity: Entity, path: Path, location: GraphLocation, spr: AnimatedSpriteController) =>
         {
-
             const moveAmt = this.speed * 100 * (delta / 1000);
 
             // Get second last node. Last node is where we are now.
@@ -85,6 +97,7 @@ export class GuyMover extends System
 
             if (destination !== null)
             {
+                spr.setAnimation(1, false);
                 const targetDir = MathUtil.pointDirection(entity.transform.x, entity.transform.y,
                     destination.transform.x, destination.transform.y);
                 const targetDistance = MathUtil.pointDistance(entity.transform.x, entity.transform.y,
@@ -103,6 +116,8 @@ export class GuyMover extends System
 
                 entity.transform.x += movecomp.x;
                 entity.transform.y += movecomp.y;
+            } else {
+                spr.setAnimation(0, false);
             }
         })
     }
