@@ -93,11 +93,11 @@ class MainScene extends Scene
 
     private makeFloors()
     {
-        for (let i = 0; i < 7; i++)
+        for (let i = 0; i < 5; i++)
         {
             for (let j = 0; j < 4; j++)
             {
-                this.addEntity(new ElevatorNode(100 + 150 * j, i * 40 + 40));
+                this.addEntity(new ElevatorNode(100 + 150 * j, i * 70 + 50));
             }
         }
     }
@@ -116,7 +116,7 @@ class MainScene extends Scene
         }
 
         // Elevator Shafts
-        for (let i = 0; i < 7; i++)
+        for (let i = 0; i < 4; i++)
         {
             for (let j = 0; j < 360 / 16; j++)
             {
