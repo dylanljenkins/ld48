@@ -57,6 +57,25 @@ class ElevatorNode extends Entity
     }
 }
 
+class FloorNode extends Entity
+{
+    level: number
+    shaft: number
+
+    constructor(shaft: number, level: number)
+    {
+        super(getNodeName("FLOOR", level, shaft), shaft * 150 + 50, level * 40 + 40, Layers.ELEVATOR_DOOR);
+        this.level = level;
+        this.shaft = shaft;
+    }
+
+    onAdded()
+    {
+        super.onAdded();
+        this.addComponent(new Sprite(sprites.texture(3, 1, 16, 16)));
+    }
+}
+
 class MainScene extends Scene
 {
     onAdded()
@@ -104,6 +123,7 @@ class MainScene extends Scene
             for (let j = 0; j < 4; j++)
             {
                 this.addEntity(new ElevatorNode(j, i));
+                this.addEntity(new FloorNode(j, i));
             }
         }
     }
