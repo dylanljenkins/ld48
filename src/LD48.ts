@@ -1,12 +1,14 @@
 import {getNodeName, HellGraph} from "./graph/Graph";
 import {Component, Diagnostics, Entity, Game, MathUtil, Scene, Sprite, SpriteSheet, TextDisp} from "lagom-engine";
 import spritesheet from './Art/spritesheet.png';
+import {Elevator} from "./Elevator";
 
-const sprites = new SpriteSheet(spritesheet, 16, 16);
+export const sprites = new SpriteSheet(spritesheet, 16, 16);
 
-enum Layers
+export enum Layers
 {
     BACKGROUND,
+    ELEVATOR,
     ELEVATOR_DOOR,
     GUYS,
     SCORE
