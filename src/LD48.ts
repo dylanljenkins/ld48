@@ -14,7 +14,7 @@ import {
 } from "lagom-engine";
 import spritesheet from './Art/spritesheet.png';
 import roomsheet from './Art/chambers.png';
-import {DoorStateSystem, ElevatorMover} from "./Elevator";
+import {DoorStateSystem, ElevatorDestroyer, ElevatorDropper, ElevatorMover} from "./Elevator";
 import {GraphLocation, GraphTarget, Guy, GuyMover, Path, Pathfinder} from "./Guy/Guy";
 
 export const sprites = new SpriteSheet(spritesheet, 16, 16);
@@ -105,6 +105,8 @@ class MainScene extends Scene
 
         this.addSystem(new DoorStateSystem());
         this.addSystem(new ElevatorMover());
+        this.addSystem(new ElevatorDropper());
+        this.addSystem(new ElevatorDestroyer());
 
         this.addEntity(new GameManager(initialBudget, initialEnergyCost));
         this.addEntity(new MoneyBoard(50, 50, 1000));
