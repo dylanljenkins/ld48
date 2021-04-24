@@ -1,5 +1,12 @@
 import { Entity, Game, Scene, TextDisp } from "lagom-engine";
 
+
+enum Layers
+{
+    SCORE
+}
+
+
 export class LD48 extends Game
 {
     constructor()
@@ -22,17 +29,29 @@ class MainScene extends Scene
 class MoneyBoard extends Entity
 {
     private currentMoney: number;
+    private label: TextDisp;
 
     constructor(x: number, y: number, initialMoney: number)
     {
-        super("MoneyBoard", x, y);
+        super("MoneyBoard", x, y, Layers.SCORE);
         this.currentMoney = initialMoney;
+        this.label = new TextDisp(-30, 0, this.getScoreText(), {fill: 0xffffff});
     }
 
     onAdded()
     {
         super.onAdded();
-        const label = new TextDisp(-30, 0, "$" + this.currentMoney.toString(), {fill: 0xffffff});
-        this.addComponent(label);
+        this.addComponent(this.label);
+    }
+
+    getScoreText()
+    {
+        return "$" + this.currentMoney.toString();
+    }
+
+    public modifyAmount(modifier: number)
+    {
+        this.currentMoney += modifier;
+        this.label.pixiObj.text = this.getScoreText();
     }
 }
