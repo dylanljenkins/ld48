@@ -54,7 +54,7 @@ export class Pathfinder extends System
 
 export class GuyMover extends System
 {
-    readonly speed = 2;
+    readonly speed = 1;
 
     types = () => [Path, GraphLocation];
 
@@ -62,12 +62,11 @@ export class GuyMover extends System
     {
         this.runOnEntities((entity: Entity, path: Path, location: GraphLocation) => {
 
-            let actualMovement = 0;
-
             const moveAmt = this.speed * 100 * (delta / 1000);
 
             // Get second last node. Last node is where we are now.
             const nextNode = path.path[path.path.length - 2]
+            if (!nextNode) return;
 
             const destination = this.scene.getEntityWithName(nextNode.id as string)
 
@@ -75,28 +74,24 @@ export class GuyMover extends System
 
             if (destination !== null)
             {
-                while (actualMovement < moveAmt)
+                const targetDir = MathUtil.pointDirection(entity.transform.x, entity.transform.y,
+                    destination.transform.x, destination.transform.y);
+                const targetDistance = MathUtil.pointDistance(entity.transform.x, entity.transform.y,
+                    destination.transform.x, destination.transform.y);
+
+                let toMove = moveAmt;
+
+                // We will move too far, cap it so we can move accurately in another loop
+                if (toMove > targetDistance)
                 {
-                    const targetDir = MathUtil.pointDirection(entity.transform.x, entity.transform.y,
-                        destination.transform.x, destination.transform.y);
-                    const targetDistance = MathUtil.pointDistance(entity.transform.x, entity.transform.y,
-                        destination.transform.x, destination.transform.y);
-
-                    let toMove = moveAmt - actualMovement;
-
-                    // We will move too far, cap it so we can move accurately in another loop
-                    if (toMove > targetDistance)
-                    {
-                        toMove = targetDistance;
-                        location.node = nextNode.id as string
-                    }
-
-                    const movecomp = MathUtil.lengthDirXY(toMove, -targetDir);
-
-                    entity.transform.x += movecomp.x;
-                    entity.transform.y += movecomp.y;
-                    actualMovement += toMove;
+                    toMove = targetDistance;
+                    location.node = nextNode.id as string;
                 }
+
+                const movecomp = MathUtil.lengthDirXY(toMove, -targetDir);
+
+                entity.transform.x += movecomp.x;
+                entity.transform.y += movecomp.y;
             }
         })
     }
