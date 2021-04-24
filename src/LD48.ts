@@ -80,9 +80,9 @@ class MainScene extends Scene
 {
     onAdded()
     {
-        graph.addElevator(1, 5, 2)
+        graph.addElevator(0, 4, 2)
         graph.printGraph()
-        const result = graph.pathfind(getNodeName("FLOOR", 1, 1), getNodeName("FLOOR", 5, 4))
+        const result = graph.pathfind(getNodeName("FLOOR", 1, 1), getNodeName("FLOOR", 4, 3))
         console.log(result)
 
         super.onAdded();
@@ -99,8 +99,8 @@ class MainScene extends Scene
         this.addEntity(new MoneyBoard(50, 50, 1000));
         this.addEntity(new PowerUseBoard(600, 10, initialEnergyCost));
 
-        const guy = new Guy("guy", 100, 200, Layers.GUYS)
-        guy.addComponent(new GraphLocation(getNodeName("FLOOR", 4, 1)))
+        const guy = new Guy("guy", 100, 330, Layers.GUYS)
+        guy.addComponent(new GraphLocation(getNodeName("FLOOR", 4, 0)))
         guy.addComponent(new GraphTarget(getNodeName("FLOOR", 4, 3)))
         guy.addComponent(new Path())
         this.addEntity(guy);
@@ -118,12 +118,12 @@ class MainScene extends Scene
 
     private makeFloors()
     {
-        for (let i = 0; i < 5; i++)
+        for (let level = 0; level < 5; level++)
         {
-            for (let j = 0; j < 4; j++)
+            for (let shaft = 0; shaft < 4; shaft++)
             {
-                this.addEntity(new ElevatorNode(j, i));
-                this.addEntity(new FloorNode(j, i));
+                this.addEntity(new ElevatorNode(shaft, level));
+                this.addEntity(new FloorNode(shaft, level));
             }
         }
     }
