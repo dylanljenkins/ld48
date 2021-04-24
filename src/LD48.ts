@@ -2,7 +2,7 @@ import {getNodeName, HellGraph} from "./graph/Graph";
 import {Component, Diagnostics, Entity, Game, MathUtil, Scene, Sprite, SpriteSheet, TextDisp} from "lagom-engine";
 import spritesheet from './Art/spritesheet.png';
 import {Elevator} from "./Elevator";
-import {GraphLocation, GraphTarget, Guy, Path, Pathfinder} from "./Guy/Guy";
+import {GraphLocation, GraphTarget, Guy, GuyMover, Path, Pathfinder} from "./Guy/Guy";
 
 export const sprites = new SpriteSheet(spritesheet, 16, 16);
 
@@ -28,9 +28,14 @@ export class LD48 extends Game
 
 class ElevatorNode extends Entity
 {
-    constructor(x: number, y: number)
+    level: number
+    shaft: number
+
+    constructor(shaft: number, level: number)
     {
-        super("elevatorNode", x, y, Layers.ELEVATOR_DOOR);
+        super(getNodeName("ELEVATOR", level, shaft), shaft * 150 + 100, level * 40 + 40, Layers.ELEVATOR_DOOR);
+        this.level = level;
+        this.shaft = shaft;
     }
 
     onAdded()
@@ -68,6 +73,7 @@ class MainScene extends Scene
         this.makeFloors();
 
         this.addSystem(new Pathfinder())
+        this.addSystem(new GuyMover())
     }
 
     private makeFloors()
@@ -76,7 +82,7 @@ class MainScene extends Scene
         {
             for (let j = 0; j < 4; j++)
             {
-                this.addEntity(new ElevatorNode(100 + 150 * j, i * 40 + 40));
+                this.addEntity(new ElevatorNode(j, i));
             }
         }
     }
