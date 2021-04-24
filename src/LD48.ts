@@ -1,4 +1,5 @@
 import { Entity, Game, Scene, TextDisp } from "lagom-engine";
+import {myGraph} from "./graph/Graph";
 
 export class LD48 extends Game
 {
@@ -13,6 +14,8 @@ class MainScene extends Scene
 {
     onAdded()
     {
+        myGraph();
+
         super.onAdded();
 
         this.addEntity(new MoneyBoard(50, 50, 1000));
