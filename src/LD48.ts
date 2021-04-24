@@ -13,7 +13,7 @@ import {
     TimerSystem
 } from "lagom-engine";
 import spritesheet from './Art/spritesheet.png';
-import {DoorStateSystem, Elevator, ElevatorMover} from "./Elevator";
+import {DoorStateSystem, ElevatorMover} from "./Elevator";
 import {GraphLocation, GraphTarget, Guy, GuyMover, Path, Pathfinder} from "./Guy/Guy";
 
 export const sprites = new SpriteSheet(spritesheet, 16, 16);
@@ -149,6 +149,10 @@ class MainScene extends Scene
                     {xOffset: 100 + 150 * i, yOffset: j * 16}));
             }
         }
+
+        // Rooms
+        background.addComponent(new Sprite(sprites.texture(0, 4, 128, 64),
+            {xOffset: 100, yOffset: 100}));
     }
 }
 

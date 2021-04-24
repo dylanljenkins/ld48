@@ -1,6 +1,6 @@
 import {Component, Entity, MathUtil, Sprite, System} from "lagom-engine";
 import {graph, sprites} from "../LD48";
-import {getNodeName, HellNode} from "../graph/Graph";
+import {HellNode} from "../graph/Graph";
 import {Node} from "ngraph.graph";
 
 export class Guy extends Entity
@@ -46,7 +46,8 @@ export class Pathfinder extends System
 
     update(delta: number): void
     {
-        this.runOnEntities((entity: Entity, location: GraphLocation, target: GraphTarget, path: Path) => {
+        this.runOnEntities((entity: Entity, location: GraphLocation, target: GraphTarget, path: Path) =>
+        {
             path.path = graph.pathfind(location.node, target.node);
         })
     }
@@ -60,7 +61,8 @@ export class GuyMover extends System
 
     update(delta: number)
     {
-        this.runOnEntities((entity: Entity, path: Path, location: GraphLocation) => {
+        this.runOnEntities((entity: Entity, path: Path, location: GraphLocation) =>
+        {
 
             const moveAmt = this.speed * 100 * (delta / 1000);
 
@@ -70,7 +72,7 @@ export class GuyMover extends System
 
             const destination = this.scene.getEntityWithName(nextNode.id as string)
 
-            console.log(this.scene.entities);
+            // console.log(this.scene.entities);
 
             if (destination !== null)
             {
