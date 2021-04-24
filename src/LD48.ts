@@ -114,7 +114,7 @@ class MainScene extends Scene
 
         const guy = new Guy("guy", 100, 330, Layers.GUYS)
         guy.addComponent(new GraphLocation(getNodeName("FLOOR", 4, 0)))
-        guy.addComponent(new GraphTarget(getNodeName("FLOOR", 0, 0.5)))
+        guy.addComponent(new GraphTarget(getNodeName("FLOOR", 0, 2)))
         guy.addComponent(new Path())
         this.addEntity(guy);
 

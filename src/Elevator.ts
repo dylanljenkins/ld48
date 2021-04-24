@@ -43,7 +43,7 @@ export class ElevatorDestination extends Component
     }
 }
 
-export class StoppedElevatorInfo extends Component
+export class StoppedElevator extends Component
 {
     public node: string;
 
@@ -109,7 +109,7 @@ export class ElevatorMover extends System
             // We made it.
             if (moveDist === distanceToGoal)
             {
-                entity.addComponent(new StoppedElevatorInfo(destination.destinationLevel, elevator.shaft))
+                entity.addComponent(new StoppedElevator(destination.destinationLevel, elevator.shaft))
                 destination.destroy();
 
                 // TODO make this able to handle stops
@@ -132,7 +132,7 @@ export class ElevatorMover extends System
                     {
                         caller.parent.addComponent(data1);
 
-                        const stoppedInfo = caller.parent.getComponent<StoppedElevatorInfo>(StoppedElevatorInfo)
+                        const stoppedInfo = caller.parent.getComponent<StoppedElevator>(StoppedElevator)
                         if (stoppedInfo === null) return;
                         caller.parent.removeComponent(stoppedInfo, true)
                     });

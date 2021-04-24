@@ -2,7 +2,7 @@ import {AnimatedSpriteController, AnimationEnd, Component, Entity, Log, MathUtil
 import {graph, sprites} from "../LD48";
 import {HellLink, HellNode} from "../graph/Graph";
 import {Link, Node} from "ngraph.graph";
-import {StoppedElevatorInfo} from "../Elevator";
+import {StoppedElevator} from "../Elevator";
 
 export class Guy extends Entity
 {
@@ -71,6 +71,12 @@ export class GuyMover extends System
     {
         this.runOnEntities((entity: Entity, path: Path, guyLocation: GraphLocation, spr: AnimatedSpriteController) =>
         {
+            // Found his destination.
+            if (path.path.length === 1)
+            {
+                entity.destroy()
+            }
+
             const moveAmt = this.speed * 100 * (delta / 1000);
 
             // Get second last node. Last node is where we are now.
@@ -80,11 +86,10 @@ export class GuyMover extends System
 
             const nextLink = currentNode.links.find((link) => link.toId === nextNode.id) as Link<HellLink>
 
-            console.log(nextLink.data.type)
-
             if (nextLink.data.type === "ELEVATOR")
             {
                 guyLocation.node = nextNode.id as string
+                return;
             }
 
             if (nextLink.data.type === "ALIGHT")
@@ -93,15 +98,15 @@ export class GuyMover extends System
 
                 if (elevator === null) throw Error("Bad");
 
-                const stoppedInfo = elevator.getComponent<StoppedElevatorInfo>(StoppedElevatorInfo);
+                const stopped = elevator.getComponent<StoppedElevator>(StoppedElevator);
 
-                if (stoppedInfo)
+                if (stopped)
                 {
                     // Getting onto the elevator.
                     if (guyLocation.state === "WALKING")
                     {
                         // It's our stop!
-                        if (nextNode.id === stoppedInfo.node)
+                        if (nextNode.id === stopped.node)
                         {
                             guyLocation.node = nextNode.id as string
                             guyLocation.state = "WAITING";
@@ -115,6 +120,7 @@ export class GuyMover extends System
                     }
                 }
                 else {
+
                     // We're on it, and it's moving.
                     if (guyLocation.state === "WAITING")
                     {
