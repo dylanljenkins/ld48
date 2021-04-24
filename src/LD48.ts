@@ -1,6 +1,7 @@
 import {myGraph} from "./graph/Graph";
-import {Entity, Game, Scene, Sprite, SpriteSheet, TextDisp} from "lagom-engine";
+import {Component, Entity, Game, Scene, Sprite, SpriteSheet, TextDisp} from "lagom-engine";
 import spritesheet from './Art/spritesheet.png';
+import { NumberLiteralType } from "typescript";
 
 const sprites = new SpriteSheet(spritesheet, 16, 16);
 
@@ -27,7 +28,10 @@ class MainScene extends Scene
 
         super.onAdded();
 
-        this.addEntity(new MoneyBoard(50, 50, 1000));
+        const initialBudget = 1000;
+
+        this.addEntity(new GameManager(initialBudget));
+        this.addEntity(new MoneyBoard(10, 10, initialBudget));
         this.addEntity(new Guy("guy", 100, 100));
 
         this.make_floors()
@@ -45,16 +49,42 @@ class MainScene extends Scene
     }
 }
 
+class GameManager extends Entity
+{
+    initialBudget: number;
+
+    constructor(initialBudget: number)
+    {
+        super("Manager");
+        this.initialBudget = initialBudget;
+    }
+
+    onAdded()
+    {
+        super.onAdded();
+        this.addComponent(new Budget(this.initialBudget));
+    }
+}
+
+class Budget extends Component
+{
+    moneyLeft: number;
+
+    constructor(initialBudget: number)
+    {
+        super();
+        this.moneyLeft = initialBudget;
+    }
+}
+
 class MoneyBoard extends Entity
 {
-    private currentMoney: number;
     private label: TextDisp;
 
     constructor(x: number, y: number, initialMoney: number)
     {
         super("MoneyBoard", x, y, Layers.SCORE);
-        this.currentMoney = initialMoney;
-        this.label = new TextDisp(-30, 0, this.getScoreText(), {fill: 0xffffff});
+        this.label = new TextDisp(0, 0, this.getScoreText(initialMoney), {fill: 0xffffff});
     }
 
     onAdded()
@@ -63,17 +93,17 @@ class MoneyBoard extends Entity
         this.addComponent(this.label);
     }
 
-    getScoreText()
+    private getScoreText(newMoney: number)
     {
-        return "$" + this.currentMoney.toString();
+        return "$" + newMoney.toString();
     }
 
-    public modifyAmount(modifier: number)
+    public updateMoney(newMoney: number)
     {
-        this.currentMoney += modifier;
-        this.label.pixiObj.text = this.getScoreText();
+        this.label.pixiObj.text = this.getScoreText(newMoney);
     }
 }
+
 
 class Guy extends Entity
 {
