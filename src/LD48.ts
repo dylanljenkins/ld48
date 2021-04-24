@@ -1,4 +1,4 @@
-import { Game, Scene } from "lagom-engine";
+import { Entity, Game, Scene, TextDisp } from "lagom-engine";
 
 export class LD48 extends Game
 {
@@ -14,5 +14,25 @@ class MainScene extends Scene
     onAdded()
     {
         super.onAdded();
+
+        this.addEntity(new MoneyBoard(50, 50, 1000));
+    }
+}
+
+class MoneyBoard extends Entity
+{
+    private currentMoney: number;
+
+    constructor(x: number, y: number, initialMoney: number)
+    {
+        super("MoneyBoard", x, y);
+        this.currentMoney = initialMoney;
+    }
+
+    onAdded()
+    {
+        super.onAdded();
+        const label = new TextDisp(-30, 0, "$" + this.currentMoney.toString(), {fill: 0xffffff});
+        this.addComponent(label);
     }
 }
