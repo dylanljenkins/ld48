@@ -1,7 +1,7 @@
 import {Component, Entity, MathUtil, Sprite, System} from "lagom-engine";
 import {graph, sprites} from "../LD48";
-import {getNodeName, HellNode} from "../graph/Graph";
-import {Node} from "ngraph.graph";
+import {getNodeName, HellLink, HellNode} from "../graph/Graph";
+import {Link, Node} from "ngraph.graph";
 
 export class Guy extends Entity
 {
@@ -65,12 +65,21 @@ export class GuyMover extends System
             const moveAmt = this.speed * 100 * (delta / 1000);
 
             // Get second last node. Last node is where we are now.
+            const currentNode = path.path[path.path.length - 1]
             const nextNode = path.path[path.path.length - 2]
             if (!nextNode) return;
 
+            const nextLink = currentNode.links.find((link: Link<HellLink>) => link.toId === nextNode.id)
+
+            if ((nextLink as Link<HellLink>).data.type === "ALIGHT")
+            {
+                // TODO get into elevator
+                return;
+            }
+
             const destination = this.scene.getEntityWithName(nextNode.id as string)
 
-            console.log(this.scene.entities);
+            // console.log(this.scene.entities);
 
             if (destination !== null)
             {
