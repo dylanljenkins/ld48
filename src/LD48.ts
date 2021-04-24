@@ -1,11 +1,14 @@
 import {myGraph} from "./graph/Graph";
-import {Entity, Game, Scene, Sprite, SpriteSheet, TextDisp} from "lagom-engine";
+import {Diagnostics, Entity, Game, MathUtil, Scene, Sprite, SpriteSheet, TextDisp} from "lagom-engine";
 import spritesheet from './Art/spritesheet.png';
 
 const sprites = new SpriteSheet(spritesheet, 16, 16);
 
 enum Layers
 {
+    BACKGROUND,
+    ELEVATOR_DOOR,
+    GUYS,
     SCORE
 }
 
@@ -28,18 +31,34 @@ class MainScene extends Scene
         super.onAdded();
 
         this.addEntity(new MoneyBoard(50, 50, 1000));
-        this.addEntity(new Guy("guy", 100, 100));
+        this.addEntity(new Guy("guy", 100, 100, Layers.GUYS));
+        this.addGUIEntity(new Diagnostics("white", 5, true));
 
-        this.make_floors()
+        this.addBackground();
+        this.makeFloors();
     }
 
-    private make_floors()
+    private makeFloors()
     {
         for (let i = 0; i < 7; i++)
         {
             for (let j = 0; j < 4; j++)
             {
-                this.addEntity(new ElevatorDoor("door1", 100 + 150 * j, i * 40 + 40));
+                this.addEntity(new ElevatorDoor("door", 100 + 150 * j, i * 40 + 40, Layers.ELEVATOR_DOOR));
+            }
+        }
+    }
+
+    private addBackground()
+    {
+        const background = this.addEntity(new Entity("background", 0, 0, Layers.BACKGROUND));
+
+        for (let i = 0; i < 640 / 16; i++)
+        {
+            for (let j = 0; j < 360 / 16; j++)
+            {
+                background.addComponent(new Sprite(sprites.texture(2 + MathUtil.randomRange(0, 5), 0, 16, 16),
+                    {xOffset: i * 16, yOffset: j * 16}));
             }
         }
     }
