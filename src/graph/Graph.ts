@@ -1,13 +1,13 @@
 import Ngraph, {Graph, Link, Node, NodeId} from "ngraph.graph";
 import {aStar, PathFinderOptions} from "ngraph.path";
 
-interface HellLink
+export interface HellLink
 {
     type: "FLOOR" | "ELEVATOR" | "ALIGHT",
     distance: number
 }
 
-interface HellNode
+export interface HellNode
 {
     type: "FLOOR" | "ELEVATOR"
 }
@@ -66,7 +66,7 @@ export class HellGraph
             {type: "ALIGHT", distance: 0})
     }
 
-    public pathfind(startNode: string, endNode: string): Node[]
+    public pathfind(startNode: string, endNode: string): Node<HellNode>[]
     {
         const options: PathFinderOptions<HellNode, HellLink> = {
             distance: (from, to, link) => link.data.distance
