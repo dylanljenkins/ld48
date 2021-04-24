@@ -80,7 +80,7 @@ class MainScene extends Scene
 {
     onAdded()
     {
-        graph.addElevator(1, 5, 2, this);
+        graph.addElevator(0, 4, 2, this);
         graph.printGraph()
         const result = graph.pathfind(getNodeName("FLOOR", 1, 1), getNodeName("FLOOR", 4, 3))
         console.log(result)
