@@ -5,14 +5,14 @@ import * as ReactDOM from "react-dom";
 import './App.css';
 import {Box, Grommet} from "grommet";
 import {LagomGameComponent} from "lagom-engine";
-import {Pong} from "./Pong";
+import { LD48 } from './LD48';
 
 // If you want your app to work offline and load faster, you can change
 // unregister() to register() below. Note this comes with some pitfalls.
 // Learn more about service workers: https://bit.ly/CRA-PWA
 serviceWorker.unregister();
 
-const game = new Pong();
+const game = new LD48();
 
 const grommetTheme = {
     global: {
