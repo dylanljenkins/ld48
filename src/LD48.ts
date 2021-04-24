@@ -60,8 +60,18 @@ class MainScene extends Scene
         {
             for (let j = 0; j < 360 / 16; j++)
             {
-                background.addComponent(new Sprite(sprites.texture(2 + MathUtil.randomRange(0, 5), 0, 16, 16),
+                background.addComponent(new Sprite(sprites.texture(2 + MathUtil.randomRange(0, 6), 0, 16, 16),
                     {xOffset: i * 16, yOffset: j * 16}));
+            }
+        }
+
+        // Elevator Shafts
+        for (let i = 0; i < 7; i++)
+        {
+            for (let j = 0; j < 360 / 16; j++)
+            {
+                background.addComponent(new Sprite(sprites.texture( MathUtil.randomRange(0, 3), 1, 16, 16),
+                    {xOffset: 100 + 150 * i, yOffset: j * 16}));
             }
         }
     }
