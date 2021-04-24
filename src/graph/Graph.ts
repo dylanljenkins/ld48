@@ -34,48 +34,63 @@ export class HellGraph
                 {
                     case 0:
                     {
-                        this.graph.addNode(getNodeName("FLOOR", level, i + 0));
+                        this.graph.addNode(getNodeName("FLOOR", level, i));
                         this.graph.addNode(getNodeName("FLOOR", level, i + 0.5));
-                        this.graph.addLink(getNodeName("FLOOR", level, i + 0), getNodeName("FLOOR", level, i + 0.5));
+                        this.addLink(getNodeName("FLOOR", level, i), getNodeName("FLOOR", level, i + 0.5), {
+                            type: "FLOOR",
+                            distance: 0
+                        });
                         break;
                     }
                     case 1:
                     {
-                        this.graph.addNode(getNodeName("FLOOR", level, i + 0));
+                        this.graph.addNode(getNodeName("FLOOR", level, i));
                         this.graph.addNode(getNodeName("FLOOR", level, i + 1));
-                        this.graph.addLink(getNodeName("FLOOR", level, i + 0), getNodeName("FLOOR", level, i + 1));
+                        this.addLink(getNodeName("FLOOR", level, i), getNodeName("FLOOR", level, i + 1), {
+                            type: "FLOOR",
+                            distance: 0
+                        });
                         break;
                     }
                     case 2:
                     {
-                        this.graph.addNode(getNodeName("FLOOR", level, i + 0));
+                        this.graph.addNode(getNodeName("FLOOR", level, i));
                         this.graph.addNode(getNodeName("FLOOR", level, i + 0.5));
                         this.graph.addNode(getNodeName("FLOOR", level, i + 1));
-                        this.graph.addLink(getNodeName("FLOOR", level, i + 0), getNodeName("FLOOR", level, i + 0.5));
-                        this.graph.addLink(getNodeName("FLOOR", level, i + 0.5), getNodeName("FLOOR", level, i + 1));
+                        this.addLink(getNodeName("FLOOR", level, i), getNodeName("FLOOR", level, i + 0.5), {
+                            type: "FLOOR",
+                            distance: 0
+                        });
+                        this.addLink(getNodeName("FLOOR", level, i + 0.5), getNodeName("FLOOR", level, i + 1), {
+                            type: "FLOOR",
+                            distance: 0
+                        });
                         break;
                     }
                     case 3:
                     {
                         this.graph.addNode(getNodeName("FLOOR", level, i + 0.5));
                         this.graph.addNode(getNodeName("FLOOR", level, i + 1));
-                        this.graph.addLink(getNodeName("FLOOR", level, i + 0.5), getNodeName("FLOOR", level, i + 1));
+                        this.addLink(getNodeName("FLOOR", level, i + 0.5), getNodeName("FLOOR", level, i + 1), {
+                            type: "FLOOR",
+                            distance: 0
+                        });
                         break;
                     }
                 }
             }
-
-            for (let shaft = 0; shaft < this.shafts; shaft++)
-            {
-                this.graph.addNode(getNodeName("FLOOR", level, shaft), {type: "FLOOR"})
-
-                if (shaft !== 0)
-                {
-                    // Link floors on the same level together.
-                    this.addLink(getNodeName("FLOOR", level, shaft), getNodeName("FLOOR", level, shaft - 1),
-                        {type: "FLOOR", distance: 1})
-                }
-            }
+            //
+            // for (let shaft = 0; shaft < this.shafts; shaft++)
+            // {
+            //     this.graph.addNode(getNodeName("FLOOR", level, shaft), {type: "FLOOR"})
+            //
+            //     if (shaft !== 0)
+            //     {
+            //         // Link floors on the same level together.
+            //         this.addLink(getNodeName("FLOOR", level, shaft), getNodeName("FLOOR", level, shaft - 1),
+            //             {type: "FLOOR", distance: 1})
+            //     }
+            // }
         }
     }
 

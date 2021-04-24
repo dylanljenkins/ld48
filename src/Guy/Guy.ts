@@ -48,7 +48,7 @@ export class Pathfinder extends System
     {
         this.runOnEntities((entity: Entity, location: GraphLocation, target: GraphTarget, path: Path) =>
         {
-            // path.path = graph.pathfind(location.node, target.node);
+            path.path = graph.pathfind(location.node, target.node);
         })
     }
 }
