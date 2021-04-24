@@ -81,9 +81,9 @@ class MainScene extends Scene
     onAdded()
     {
         graph.addElevator(0, 4, 2, this);
-        graph.printGraph()
+        // graph.printGraph()
         const result = graph.pathfind(getNodeName("FLOOR", 1, 1), getNodeName("FLOOR", 4, 3))
-        console.log(result)
+        // console.log(result)
 
         super.onAdded();
 
@@ -102,7 +102,7 @@ class MainScene extends Scene
 
         const guy = new Guy("guy", 100, 330, Layers.GUYS)
         guy.addComponent(new GraphLocation(getNodeName("FLOOR", 4, 0)))
-        guy.addComponent(new GraphTarget(getNodeName("FLOOR", 4, 3)))
+        guy.addComponent(new GraphTarget(getNodeName("FLOOR", 0, 0)))
         guy.addComponent(new Path())
         this.addEntity(guy);
 
