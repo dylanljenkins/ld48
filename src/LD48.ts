@@ -1,7 +1,8 @@
-import { Entity, Game, Scene, TextDisp } from "lagom-engine";
 import {myGraph} from "./graph/Graph";
+import { Entity, Game, Scene, Sprite, SpriteSheet, TextDisp } from "lagom-engine";
+import spritesheet from './Art/spritesheet.png';
 
-
+const sprites = new SpriteSheet(spritesheet, 16, 16);
 enum Layers
 {
     SCORE
@@ -12,7 +13,7 @@ export class LD48 extends Game
 {
     constructor()
     {
-        super({width: 1200, height: 700, resolution: 1, backgroundColor: 0x000000});
+        super({width: 1200, height: 700, resolution: 1, backgroundColor: 0xd95763});
         this.setScene(new MainScene(this));
     }
 }
@@ -26,6 +27,8 @@ class MainScene extends Scene
         super.onAdded();
 
         this.addEntity(new MoneyBoard(50, 50, 1000));
+        this.addEntity(new Guy("guy", 100, 100));
+        this.addEntity(new ElevatorDoor("door1", 140, 100));
     }
 }
 
@@ -56,5 +59,20 @@ class MoneyBoard extends Entity
     {
         this.currentMoney += modifier;
         this.label.pixiObj.text = this.getScoreText();
+    }
+}
+class Guy extends Entity {
+    onAdded() {
+        super.onAdded();
+
+        this.addComponent(new Sprite(sprites.texture(0, 0, 8, 8)));
+    }
+}
+
+class ElevatorDoor extends Entity {
+    onAdded() {
+        super.onAdded();
+
+        this.addComponent(new Sprite(sprites.textureFromIndex(1)));
     }
 }
