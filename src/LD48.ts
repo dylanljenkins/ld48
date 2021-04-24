@@ -22,6 +22,20 @@ export class LD48 extends Game
     }
 }
 
+class ElevatorNode extends Entity
+{
+    constructor(x: number, y: number)
+    {
+        super("elevatorNode", x, y, Layers.ELEVATOR_DOOR);
+    }
+
+    onAdded()
+    {
+        super.onAdded();
+        this.addComponent(new Sprite(sprites.texture(3, 1, 16 ,16)));
+    }
+}
+
 class MainScene extends Scene
 {
     onAdded()
@@ -47,7 +61,7 @@ class MainScene extends Scene
         {
             for (let j = 0; j < 4; j++)
             {
-                this.addEntity(new ElevatorDoor("door", 100 + 150 * j, i * 40 + 40, Layers.ELEVATOR_DOOR));
+                this.addEntity(new ElevatorNode(100 + 150 * j, i * 40 + 40));
             }
         }
     }
@@ -70,7 +84,7 @@ class MainScene extends Scene
         {
             for (let j = 0; j < 360 / 16; j++)
             {
-                background.addComponent(new Sprite(sprites.texture( MathUtil.randomRange(0, 3), 1, 16, 16),
+                background.addComponent(new Sprite(sprites.texture(MathUtil.randomRange(0, 3), 1, 16, 16),
                     {xOffset: 100 + 150 * i, yOffset: j * 16}));
             }
         }
