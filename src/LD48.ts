@@ -54,7 +54,7 @@ class MainScene extends Scene
         const initialBudget = 1000;
         const initialEnergyCost = 0;
 
-        this.addEntity(new GameManager(initialBudget));
+        this.addEntity(new GameManager(initialBudget, initialEnergyCost));
         this.addEntity(new MoneyBoard(50, 50, 1000));
         this.addEntity(new PowerUseBoard(600, 10, initialEnergyCost));
 
@@ -111,17 +111,20 @@ class MainScene extends Scene
 class GameManager extends Entity
 {
     initialBudget: number;
+    initialEnergyUse: number;
 
-    constructor(initialBudget: number)
+    constructor(initialBudget: number, initialEnergyUse: number)
     {
         super("Manager");
         this.initialBudget = initialBudget;
+        this.initialEnergyUse = initialEnergyUse;
     }
 
     onAdded()
     {
         super.onAdded();
         this.addComponent(new Budget(this.initialBudget));
+        this.addComponent(new EnergyUsed(this.initialEnergyUse));
     }
 }
 
@@ -133,6 +136,17 @@ class Budget extends Component
     {
         super();
         this.moneyLeft = initialBudget;
+    }
+}
+
+class EnergyUsed extends Component
+{
+    energyUsed: number;
+
+    constructor(initialEnergyUse: number)
+    {
+        super();
+        this.energyUsed = initialEnergyUse;
     }
 }
 
