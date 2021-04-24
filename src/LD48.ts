@@ -14,7 +14,7 @@ import {
 } from "lagom-engine";
 import spritesheet from './Art/spritesheet.png';
 import {DoorStateSystem, Elevator} from "./Elevator";
-import {GraphLocation, GraphTarget, Guy, Path, Pathfinder} from "./Guy/Guy";
+import {GraphLocation, GraphTarget, Guy, GuyMover, Path, Pathfinder} from "./Guy/Guy";
 
 export const sprites = new SpriteSheet(spritesheet, 16, 16);
 
@@ -40,9 +40,33 @@ export class LD48 extends Game
 
 class ElevatorNode extends Entity
 {
-    constructor(x: number, y: number)
+    level: number
+    shaft: number
+
+    constructor(shaft: number, level: number)
     {
-        super("elevatorNode", x, y, Layers.ELEVATOR_DOOR);
+        super(getNodeName("ELEVATOR", level, shaft), 100 + 150 * shaft, level * 70 + 50, Layers.ELEVATOR_DOOR);
+        this.level = level;
+        this.shaft = shaft;
+    }
+
+    onAdded()
+    {
+        super.onAdded();
+        this.addComponent(new Sprite(sprites.texture(3, 1, 16, 16)));
+    }
+}
+
+class FloorNode extends Entity
+{
+    level: number
+    shaft: number
+
+    constructor(shaft: number, level: number)
+    {
+        super(getNodeName("FLOOR", level, shaft), 120 + 150 * shaft, level * 70 + 50, Layers.ELEVATOR_DOOR);
+        this.level = level;
+        this.shaft = shaft;
     }
 
     onAdded()
@@ -71,7 +95,7 @@ class MainScene extends Scene
 
         this.addSystem(new DoorStateSystem());
 
-        this.addEntity(new GameManager(initialBudget));
+        this.addEntity(new GameManager(initialBudget, initialEnergyCost));
         this.addEntity(new MoneyBoard(50, 50, 1000));
         this.addEntity(new PowerUseBoard(600, 10, initialEnergyCost));
 
@@ -89,6 +113,7 @@ class MainScene extends Scene
         this.makeFloors();
 
         this.addSystem(new Pathfinder())
+        this.addSystem(new GuyMover())
     }
 
     private makeFloors()
@@ -97,7 +122,8 @@ class MainScene extends Scene
         {
             for (let j = 0; j < 4; j++)
             {
-                this.addEntity(new ElevatorNode(100 + 150 * j, i * 70 + 50));
+                this.addEntity(new ElevatorNode(j, i));
+                this.addEntity(new FloorNode(j, i));
             }
         }
     }
@@ -130,17 +156,20 @@ class MainScene extends Scene
 class GameManager extends Entity
 {
     initialBudget: number;
+    initialEnergyUse: number;
 
-    constructor(initialBudget: number)
+    constructor(initialBudget: number, initialEnergyUse: number)
     {
         super("Manager");
         this.initialBudget = initialBudget;
+        this.initialEnergyUse = initialEnergyUse;
     }
 
     onAdded()
     {
         super.onAdded();
         this.addComponent(new Budget(this.initialBudget));
+        this.addComponent(new EnergyUsed(this.initialEnergyUse));
     }
 }
 
@@ -152,6 +181,17 @@ class Budget extends Component
     {
         super();
         this.moneyLeft = initialBudget;
+    }
+}
+
+class EnergyUsed extends Component
+{
+    energyUsed: number;
+
+    constructor(initialEnergyUse: number)
+    {
+        super();
+        this.energyUsed = initialEnergyUse;
     }
 }
 
