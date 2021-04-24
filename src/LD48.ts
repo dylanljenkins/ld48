@@ -16,11 +16,12 @@ import {
     FrameTriggerSystem,
 } from "lagom-engine";
 import spritesheet from './Art/spritesheet.png';
-import {DoorStateSystem, Elevator, ElevatorMover} from "./Elevator";
+import roomsheet from './Art/chambers.png';
+import {DoorStateSystem, ElevatorDestroyer, ElevatorDropper, ElevatorMover} from "./Elevator";
 import {GraphLocation, GraphTarget, Guy, GuyMover, Path, Pathfinder} from "./Guy/Guy";
-import {Simulate} from "react-dom/test-utils";
 
 export const sprites = new SpriteSheet(spritesheet, 16, 16);
+export const rooms = new SpriteSheet(roomsheet, 150, 64);
 
 export enum Layers
 {
@@ -32,6 +33,14 @@ export enum Layers
     SCORE,
     MOUSE
 }
+
+export const hellLayout = [
+    [3, 1, 0],
+    [1, -1, 2],
+    [0, 2, 1],
+    [3, -1, 3],
+    [1, 0, 2]
+];
 
 export const graph = new HellGraph();
 
@@ -68,7 +77,7 @@ class MainScene extends Scene
     onAdded()
     {
         // graph.printGraph()
-        const result = graph.pathfind(getNodeName("FLOOR", 1, 1), getNodeName("FLOOR", 4, 3))
+        // const result = graph.pathfind(getNodeName("FLOOR", 1, 1), getNodeName("FLOOR", 4, 3))
         // console.log(result)
 
         super.onAdded();
@@ -86,6 +95,8 @@ class MainScene extends Scene
 
         this.addSystem(new DoorStateSystem());
         this.addSystem(new ElevatorMover());
+        this.addSystem(new ElevatorDropper());
+        this.addSystem(new ElevatorDestroyer());
 
         this.addEntity(new GameManager(initialBudget, initialEnergyCost));
         this.addEntity(new MoneyBoard(50, 50, 1000));
@@ -93,7 +104,7 @@ class MainScene extends Scene
 
         const guy = new Guy("guy", 100, 330, Layers.GUYS)
         guy.addComponent(new GraphLocation(getNodeName("FLOOR", 4, 0)))
-        guy.addComponent(new GraphTarget(getNodeName("FLOOR", 4, 3)))
+        guy.addComponent(new GraphTarget(getNodeName("FLOOR", 0, 0.5)))
         guy.addComponent(new Path())
         this.addEntity(guy);
 
@@ -138,6 +149,19 @@ class MainScene extends Scene
             {
                 background.addComponent(new Sprite(sprites.texture(MathUtil.randomRange(0, 3), 1, 16, 16),
                     {xOffset: 100 + 150 * i, yOffset: j * 16}));
+            }
+        }
+
+        // Rooms
+        for (let i = 0; i < 5; i++)
+        {
+            for (let j = 0; j < 3; j++)
+            {
+                const room = hellLayout[i][j];
+
+                if (room === -1) continue;
+                background.addComponent(new Sprite(rooms.texture(0, room),
+                    {xOffset: 8 + 100 + 150 * j, yOffset: i * 70 + 3}));
             }
         }
     }
