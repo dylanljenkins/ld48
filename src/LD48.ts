@@ -1,5 +1,17 @@
 import {getNodeName, HellGraph} from "./graph/Graph";
-import {Component, Diagnostics, Entity, Game, MathUtil, PIXIComponent, Scene, Sprite, SpriteSheet, TextDisp} from "lagom-engine";
+import {
+    Component,
+    Diagnostics,
+    Entity,
+    FrameTriggerSystem,
+    Game,
+    MathUtil,
+    Scene,
+    Sprite,
+    SpriteSheet,
+    TextDisp,
+    TimerSystem
+} from "lagom-engine";
 import spritesheet from './Art/spritesheet.png';
 import {DoorStateSystem, Elevator} from "./Elevator";
 import {GraphLocation, GraphTarget, Guy, Path, Pathfinder} from "./Guy/Guy";
@@ -180,17 +192,7 @@ class PowerUseBoard extends Entity
     onAdded()
     {
         super.onAdded();
-        const textbox = new TextDisp(0, 0, this.initialValue.toString(),{fill: 0xffffff});
+        const textbox = new TextDisp(0, 0, this.initialValue.toString(), {fill: 0xffffff});
         this.addComponent(textbox);
-    }
-}
-
-class ElevatorDoor extends Entity
-{
-    onAdded()
-    {
-        super.onAdded();
-
-        this.addComponent(new Sprite(sprites.textureFromIndex(1)));
     }
 }
