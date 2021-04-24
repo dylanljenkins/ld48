@@ -6,7 +6,8 @@ import {Elevator} from "../Elevator";
 export interface HellLink
 {
     type: "FLOOR" | "ELEVATOR" | "ALIGHT",
-    distance: number
+    distance: number,
+    elevator: Elevator | null
 }
 
 export interface HellNode
@@ -32,7 +33,7 @@ export class HellGraph
                 {
                     // Link floors on the same level together.
                     this.addLink(getNodeName("FLOOR", level, shaft), getNodeName("FLOOR", level, shaft - 1),
-                        {type: "FLOOR", distance: 1})
+                        {type: "FLOOR", distance: 1, elevator: null})
                 }
             }
         }
@@ -56,19 +57,22 @@ export class HellGraph
             if (level !== startLevel)
             {
                 this.addLink(getNodeName("ELEVATOR", level, shaft), getNodeName("ELEVATOR", level - 1, shaft),
-                    {type: "ELEVATOR", distance: 5})
+                    {type: "ELEVATOR", distance: 1, elevator: null})
             }
         }
 
-        // Add links for the elevators and the floors they stop at.
+        const elevator = new Elevator(startLevel, endLevel, shaft);
+
+        // Add links for the elevators and the start/end floors.
         this.addLink(getNodeName("ELEVATOR", startLevel, shaft), getNodeName("FLOOR", startLevel, shaft),
-            {type: "ALIGHT", distance: 0})
+            {type: "ALIGHT", distance: 15, elevator: elevator})
 
         this.addLink(getNodeName("ELEVATOR", endLevel, shaft), getNodeName("FLOOR", endLevel, shaft),
-            {type: "ALIGHT", distance: 0})
+            {type: "ALIGHT", distance: 15, elevator: elevator})
+
 
         // Spawn the elevator.
-        scene.addEntity(new Elevator(startLevel, endLevel, shaft));
+        scene.addEntity(elevator);
     }
 
     public pathfind(startNode: string, endNode: string): Node<HellNode>[]

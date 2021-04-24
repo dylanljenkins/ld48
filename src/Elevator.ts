@@ -34,7 +34,7 @@ export class Elevator extends Entity
     }
 }
 
-class ElevatorDestination extends Component
+export class ElevatorDestination extends Component
 {
     constructor(public destinationLevel: number, public direction: "UP" | "DOWN")
     {

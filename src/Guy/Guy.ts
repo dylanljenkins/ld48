@@ -1,7 +1,8 @@
-import {Component, Entity, MathUtil, Sprite, System} from "lagom-engine";
+import {Component, Entity, LagomGameComponent, MathUtil, Sprite, System} from "lagom-engine";
 import {graph, sprites} from "../LD48";
 import {HellLink, HellNode} from "../graph/Graph";
 import {Link, Node} from "ngraph.graph";
+import {ElevatorDestination} from "../Elevator";
 
 export class Guy extends Entity
 {
@@ -15,23 +16,17 @@ export class Guy extends Entity
 
 export class GraphLocation extends Component
 {
-    node: string
-
-    constructor(node: string)
+    constructor(public node: string, public state: "WAITING" | "ELEVATING" | "WALKING" = "WALKING")
     {
         super();
-        this.node = node
     }
 }
 
 export class GraphTarget extends Component
 {
-    node: string
-
-    constructor(node: string)
+    constructor(public node: string)
     {
         super();
-        this.node = node
     }
 }
 
@@ -61,7 +56,7 @@ export class GuyMover extends System
 
     update(delta: number)
     {
-        this.runOnEntities((entity: Entity, path: Path, location: GraphLocation) =>
+        this.runOnEntities((entity: Entity, path: Path, guyLocation: GraphLocation) =>
         {
 
             const moveAmt = this.speed * 100 * (delta / 1000);
@@ -71,17 +66,58 @@ export class GuyMover extends System
             const nextNode = path.path[path.path.length - 2]
             if (!nextNode) return;
 
-            const nextLink = currentNode.links.find((link: Link<HellLink>) => link.toId === nextNode.id)
+            const nextLink = currentNode.links.find((link) => link.toId === nextNode.id) as Link<HellLink>
 
-            if ((nextLink as Link<HellLink>).data.type === "ALIGHT")
+            console.log(nextLink.data.type)
+
+            // Skip through elevator nodes - they aren't used now that elevators can't stop half way.
+            if (nextLink.data.type === "ELEVATOR")
             {
-                // TODO get into elevator
+                guyLocation.node = nextNode.id as string
+            }
+
+            if (nextLink.data.type === "ALIGHT")
+            {
+                const elevator = nextLink.data.elevator;
+
+                if (elevator === null) throw Error("Bad");
+
+                const destination = elevator.getComponent<ElevatorDestination>(ElevatorDestination);
+
+                // If the elevator has a destination, it's moving.
+                if (destination)
+                {
+                    // We're on it, and it's moving.
+                    if (guyLocation.state === "WAITING")
+                    {
+                        guyLocation.state = "ELEVATING"
+                    }
+
+                    if (guyLocation.state === "ELEVATING")
+                    {
+                        entity.transform.x = elevator.transform.x + 5
+                        entity.transform.y = elevator.transform.y + 5
+                    }
+                }
+                // It's at a stop
+                else
+                {
+                    if (guyLocation.state === "ELEVATING")
+                    {
+                        guyLocation.node = nextNode.id as string;
+                        guyLocation.state = "WALKING";
+                    }
+                    else if (guyLocation.state === "WALKING")
+                    {
+                        guyLocation.node = nextNode.id as string
+                        guyLocation.state = "WAITING";
+                    }
+                }
+
                 return;
             }
 
             const destination = this.scene.getEntityWithName(nextNode.id as string)
-
-            // console.log(this.scene.entities);
 
             if (destination !== null)
             {
@@ -96,7 +132,7 @@ export class GuyMover extends System
                 if (toMove > targetDistance)
                 {
                     toMove = targetDistance;
-                    location.node = nextNode.id as string;
+                    guyLocation.node = nextNode.id as string;
                 }
 
                 const movecomp = MathUtil.lengthDirXY(toMove, -targetDir);
