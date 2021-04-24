@@ -2,10 +2,8 @@ import './index.css';
 import * as serviceWorker from './serviceWorker';
 import * as React from "react";
 import * as ReactDOM from "react-dom";
-import 'bootstrap/dist/css/bootstrap.min.css';
 import './App.css';
 import {Box, Grommet} from "grommet";
-import {configure} from "mobx";
 import {LagomGameComponent} from "lagom-engine";
 import {Pong} from "./Pong";
 
@@ -13,7 +11,6 @@ import {Pong} from "./Pong";
 // unregister() to register() below. Note this comes with some pitfalls.
 // Learn more about service workers: https://bit.ly/CRA-PWA
 serviceWorker.unregister();
-configure({enforceActions: "observed"});
 
 const game = new Pong();
 

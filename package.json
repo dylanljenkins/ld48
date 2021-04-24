@@ -12,17 +12,14 @@
     "lint:fix": "eslint src/**/*.ts --fix"
   },
   "dependencies": {
+    "grommet": "^2.7.10",
+    "grommet-icons": "^4.3.0",
+    "lagom-engine": "file:../lagom-engine",
     "react": "^16.13.1",
     "react-dom": "^16.13.1",
     "react-scripts": "^4.0.3",
-    "typescript": "^4.2.4",
-    "mobx": "^5.14.2",
-    "mobx-react": "^6.1.4",
-    "grommet": "^2.7.10",
-    "grommet-icons": "^4.3.0",
     "styled-components": "^5.2.3",
-    "bootstrap": "^4.3.1",
-    "lagom-engine": "file:../lagom-engine"
+    "typescript": "^4.2.4"
   },
   "eslintConfig": {
     "extends": "react-app"
@@ -34,9 +31,9 @@
     "not op_mini all"
   ],
   "devDependencies": {
-    "@types/reactstrap": "^8.0.4",
     "@types/react": "^16.8.10",
     "@types/react-dom": "^16.8.3",
+    "@types/reactstrap": "^8.0.4",
     "@typescript-eslint/eslint-plugin": "^4.22.0",
     "@typescript-eslint/parser": "^4.22.0",
     "eslint": "^7.24.0",
