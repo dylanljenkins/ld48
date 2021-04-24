@@ -17,7 +17,14 @@ import {
 } from "lagom-engine";
 import spritesheet from './Art/spritesheet.png';
 import roomsheet from './Art/chambers.png';
-import {DoorStateSystem, ElevatorDestroyer, ElevatorDropper, ElevatorMover} from "./Elevator";
+import {
+    DoorStateSystem, ElevatorComp,
+    ElevatorDestination,
+    ElevatorDestroyer,
+    ElevatorDropper,
+    ElevatorFalling,
+    ElevatorMover
+} from "./Elevator";
 import {GraphLocation, GraphTarget, Guy, GuyMover, Path, Pathfinder} from "./Guy/Guy";
 
 export const sprites = new SpriteSheet(spritesheet, 16, 16);
@@ -336,7 +343,7 @@ class ElevatorNodeManager extends Entity
                                     const start = Math.min(node.level, firstNode.level);
                                     const end = Math.max(node.level, firstNode.level);
                                     if (this.parent != null) {
-                                        graph.addElevator(start, end, node.shaft, this.parent.getScene());
+                                        const elevator = graph.addElevator(start, end, node.shaft, this.parent.getScene());
 
                                         const nodesInShaft = shaft/*.filter(node => node.level>= start && node.level <= end)*/;
                                         nodesInShaft.forEach(node => node.hide());
@@ -348,6 +355,9 @@ class ElevatorNodeManager extends Entity
                                         buttonColl.onTriggerEnter.register((caller, data) => {
                                             if (data.other.layer === Layers.MOUSE) {
                                                 dropButton.destroy();
+                                                elevator.getComponent(ElevatorDestination)?.destroy();
+                                                elevator.getComponent(ElevatorComp)?.destroy();
+                                                elevator.addComponent(new ElevatorFalling());
                                                 shaft.filter(node => node.hidden).forEach(node => node.show());
                                             }
                                         });

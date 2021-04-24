@@ -34,7 +34,7 @@ export class Elevator extends Entity
     }
 }
 
-class ElevatorDestination extends Component
+export class ElevatorDestination extends Component
 {
     constructor(public destinationLevel: number, public direction: "UP" | "DOWN")
     {
@@ -42,7 +42,7 @@ class ElevatorDestination extends Component
     }
 }
 
-class ElevatorFalling extends Component
+export class ElevatorFalling extends Component
 {
 }
 
@@ -54,7 +54,7 @@ export class ElevatorDropper extends System
     {
         this.runOnEntities((entity: Entity) =>
         {
-            entity.transform.position.y += 40 * (delta / 1000)
+            entity.transform.position.y += 80 * (delta / 1000)
         });
     }
 
@@ -124,7 +124,7 @@ export class ElevatorMover extends System
     }
 }
 
-class ElevatorComp extends Component
+export class ElevatorComp extends Component
 {
     constructor(readonly startLevel: number, readonly endLevel: number, readonly shaft: number)
     {

@@ -124,7 +124,7 @@ export class HellGraph
             {type: "ALIGHT", distance: 0})
 
         // Spawn the elevator.
-        scene.addEntity(new Elevator(startLevel, endLevel, shaft));
+        return scene.addEntity(new Elevator(startLevel, endLevel, shaft));
     }
 
     public pathfind(startNode: string, endNode: string): Node<HellNode>[]
