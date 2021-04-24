@@ -1,4 +1,4 @@
-import {myGraph} from "./graph/Graph";
+import {getNodeName, HellGraph} from "./graph/Graph";
 import { Entity, Game, Scene, Sprite, SpriteSheet, TextDisp } from "lagom-engine";
 import spritesheet from './Art/spritesheet.png';
 
@@ -22,7 +22,11 @@ class MainScene extends Scene
 {
     onAdded()
     {
-        myGraph();
+        const graph = new HellGraph();
+        graph.addElevator(1, 5, 2)
+        graph.printGraph()
+        const result = graph.pathfind(getNodeName("FLOOR", 1, 1), getNodeName("FLOOR", 5, 4))
+        console.log(result)
 
         super.onAdded();
 
