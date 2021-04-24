@@ -74,7 +74,7 @@ export class ElevatorDestroyer extends System
         });
     }
 
-    types = () => [ElevatorComp];
+    types = () => [ElevatorFalling];
 }
 
 export class ElevatorMover extends System
