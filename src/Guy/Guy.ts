@@ -1,4 +1,4 @@
-import {AnimatedSpriteController, AnimationEnd, Component, Entity, MathUtil, System} from "lagom-engine";
+import {AnimatedSpriteController, AnimationEnd, Component, Entity, Log, MathUtil, System} from "lagom-engine";
 import {graph, sprites} from "../LD48";
 import {HellLink, HellNode} from "../graph/Graph";
 import {Link, Node} from "ngraph.graph";
@@ -10,7 +10,7 @@ export class Guy extends Entity
     {
         super.onAdded();
 
-        this.addComponent(new AnimatedSpriteController(1, [
+        this.addComponent(new AnimatedSpriteController(0, [
             {
                 id: 0,
                 textures: [sprites.texture(0, 0, 8, 8)]
@@ -133,7 +133,6 @@ export class GuyMover extends System
 
             if (destination !== null)
             {
-                spr.setAnimation(1, false);
                 const targetDir = MathUtil.pointDirection(entity.transform.x, entity.transform.y,
                     destination.transform.x, destination.transform.y);
                 const targetDistance = MathUtil.pointDistance(entity.transform.x, entity.transform.y,
@@ -148,12 +147,16 @@ export class GuyMover extends System
                     guyLocation.node = nextNode.id as string;
                 }
 
+                if (toMove > 0) {
+                    spr.setAnimation(1, false);
+                } else {
+                    spr.setAnimation(0, true);
+                }
+
                 const movecomp = MathUtil.lengthDirXY(toMove, -targetDir);
 
                 entity.transform.x += movecomp.x;
                 entity.transform.y += movecomp.y;
-            } else {
-                spr.setAnimation(0, false);
             }
         })
     }
