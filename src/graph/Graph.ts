@@ -100,5 +100,5 @@ export class HellGraph
     }
 }
 
-export const getNodeName = (type: "FLOOR" | "ELEVATOR", level: number, shaft: number) =>
+export const getNodeName = (type: "FLOOR" | "ELEVATOR" | "DROP", level: number, shaft: number) =>
     `${type}: Level ${level}, Shaft ${shaft}`
