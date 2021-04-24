@@ -1,32 +1,34 @@
 import Ngraph, {Graph, Link, Node, NodeId} from "ngraph.graph";
 import {aStar, PathFinderOptions} from "ngraph.path";
+import {Scene} from "../../../lagom-engine";
+import {Elevator} from "../Elevator";
 
-interface HellLink
+export interface HellLink
 {
     type: "FLOOR" | "ELEVATOR" | "ALIGHT",
     distance: number
 }
 
-interface HellNode
+export interface HellNode
 {
     type: "FLOOR" | "ELEVATOR"
 }
 
 export class HellGraph
 {
-    private levels = 7;
+    private levels = 5;
     private shafts = 4;
     public graph: Graph<HellNode, HellLink> = Ngraph();
 
     constructor()
     {
-        for (let level = 1; level <= this.levels; level++)
+        for (let level = 0; level < this.levels; level++)
         {
-            for (let shaft = 1; shaft <= this.shafts; shaft++)
+            for (let shaft = 0; shaft < this.shafts; shaft++)
             {
                 this.graph.addNode(getNodeName("FLOOR", level, shaft), {type: "FLOOR"})
 
-                if (shaft !== 1)
+                if (shaft !== 0)
                 {
                     // Link floors on the same level together.
                     this.addLink(getNodeName("FLOOR", level, shaft), getNodeName("FLOOR", level, shaft - 1),
@@ -36,12 +38,12 @@ export class HellGraph
         }
     }
 
-    public addElevator(startLevel: number, endLevel: number, shaft: number)
+    public addElevator(startLevel: number, endLevel: number, shaft: number, scene: Scene)
     {
-        if (startLevel >= this.levels || startLevel < 1 ||
-            endLevel >= this.levels || endLevel < 1 ||
+        if (startLevel >= this.levels || startLevel < 0 ||
+            endLevel >= this.levels || endLevel < 0 ||
             startLevel === endLevel ||
-            shaft >= this.shafts || shaft < 1)
+            shaft >= this.shafts || shaft < 0)
         {
             throw Error(`Elevator is invalid. Start: ${startLevel}, End: ${endLevel}, Shaft: ${shaft}`)
         }
@@ -64,9 +66,12 @@ export class HellGraph
 
         this.addLink(getNodeName("ELEVATOR", endLevel, shaft), getNodeName("FLOOR", endLevel, shaft),
             {type: "ALIGHT", distance: 0})
+
+        // Spawn the elevator.
+        scene.addEntity(new Elevator(startLevel, endLevel, shaft));
     }
 
-    public pathfind(startNode: string, endNode: string): Node[]
+    public pathfind(startNode: string, endNode: string): Node<HellNode>[]
     {
         const options: PathFinderOptions<HellNode, HellLink> = {
             distance: (from, to, link) => link.data.distance

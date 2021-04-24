@@ -12,15 +12,19 @@ import {
     Scene,
     Sprite,
     SpriteSheet,
-    TextDisp, Timer
+    TextDisp, Timer,    TimerSystem,
+    FrameTriggerSystem,
 } from "lagom-engine";
 import spritesheet from './Art/spritesheet.png';
+import {DoorStateSystem, Elevator, ElevatorMover} from "./Elevator";
+import {GraphLocation, GraphTarget, Guy, GuyMover, Path, Pathfinder} from "./Guy/Guy";
 
-const sprites = new SpriteSheet(spritesheet, 16, 16);
+export const sprites = new SpriteSheet(spritesheet, 16, 16);
 
-enum Layers
+export enum Layers
 {
     BACKGROUND,
+    ELEVATOR,
     ELEVATOR_DOOR,
     ELEVATOR_NODE,
     GUYS,
@@ -28,6 +32,7 @@ enum Layers
     MOUSE
 }
 
+export const graph = new HellGraph();
 
 export class LD48 extends Game
 {
@@ -38,15 +43,33 @@ export class LD48 extends Game
     }
 }
 
+class FloorNode extends Entity
+{
+    level: number
+    shaft: number
+
+    constructor(shaft: number, level: number)
+    {
+        super(getNodeName("FLOOR", level, shaft), 120 + 150 * shaft, level * 70 + 50, Layers.ELEVATOR_DOOR);
+        this.level = level;
+        this.shaft = shaft;
+    }
+
+    onAdded()
+    {
+        super.onAdded();
+        this.addComponent(new Sprite(sprites.texture(3, 1, 16, 16)));
+    }
+}
+
 class MainScene extends Scene
 {
     onAdded()
     {
-        const graph = new HellGraph();
-        graph.addElevator(1, 5, 2)
-        graph.printGraph()
-        const result = graph.pathfind(getNodeName("FLOOR", 1, 1), getNodeName("FLOOR", 5, 4))
-        console.log(result)
+        graph.addElevator(0, 4, 2, this);
+        // graph.printGraph()
+        const result = graph.pathfind(getNodeName("FLOOR", 1, 1), getNodeName("FLOOR", 4, 3))
+        // console.log(result)
 
         super.onAdded();
 
@@ -56,25 +79,41 @@ class MainScene extends Scene
         this.addGlobalSystem(new MouseEventSystem());
 
         const initialBudget = 1000;
+        const initialEnergyCost = 0;
 
-        this.addEntity(new GameManager(initialBudget));
+        this.addGlobalSystem(new TimerSystem());
+        this.addGlobalSystem(new FrameTriggerSystem());
+
+        this.addSystem(new DoorStateSystem());
+        this.addSystem(new ElevatorMover());
+
+        this.addEntity(new GameManager(initialBudget, initialEnergyCost));
         this.addEntity(new MoneyBoard(50, 50, 1000));
-        this.addEntity(new Guy("guy", 100, 100, Layers.GUYS));
+        this.addEntity(new PowerUseBoard(600, 10, initialEnergyCost));
+
+        const guy = new Guy("guy", 100, 330, Layers.GUYS)
+        guy.addComponent(new GraphLocation(getNodeName("FLOOR", 4, 0)))
+        guy.addComponent(new GraphTarget(getNodeName("FLOOR", 4, 3)))
+        guy.addComponent(new Path())
+        this.addEntity(guy);
+
         this.addGUIEntity(new Diagnostics("white", 5, true));
         this.addEntity(new ElevatorNodeManager("Node Manager", 0, 0, Layers.ELEVATOR_NODE));
 
         this.addBackground();
-        // this.makeFloors();
+        this.makeFloors();
+
+        this.addSystem(new Pathfinder())
+        this.addSystem(new GuyMover())
     }
 
     private makeFloors()
     {
-        for (let i = 0; i < 7; i++)
+        for (let level = 0; level < 5; level++)
         {
-            const shaft = [];
-            for (let j = 0; j < 4; j++)
+            for (let shaft = 0; shaft < 4; shaft++)
             {
-                this.addEntity(new ElevatorNode(`node${i}${j}`, 100 + 150 * j, i * 40 + 40, Layers.ELEVATOR_DOOR));
+                this.addEntity(new FloorNode(shaft, level));
             }
         }
     }
@@ -87,17 +126,17 @@ class MainScene extends Scene
         {
             for (let j = 0; j < 360 / 16; j++)
             {
-                background.addComponent(new Sprite(sprites.texture(2 + MathUtil.randomRange(0, 6), 0, 16, 16),
+                background.addComponent(new Sprite(sprites.texture(1 + MathUtil.randomRange(0, 7), 0, 16, 16),
                     {xOffset: i * 16, yOffset: j * 16}));
             }
         }
 
         // Elevator Shafts
-        for (let i = 0; i < 7; i++)
+        for (let i = 0; i < 4; i++)
         {
             for (let j = 0; j < 360 / 16; j++)
             {
-                background.addComponent(new Sprite(sprites.texture( MathUtil.randomRange(0, 3), 1, 16, 16),
+                background.addComponent(new Sprite(sprites.texture(MathUtil.randomRange(0, 3), 1, 16, 16),
                     {xOffset: 100 + 150 * i, yOffset: j * 16}));
             }
         }
@@ -141,17 +180,20 @@ class MouseEventSystem extends GlobalSystem
 class GameManager extends Entity
 {
     initialBudget: number;
+    initialEnergyUse: number;
 
-    constructor(initialBudget: number)
+    constructor(initialBudget: number, initialEnergyUse: number)
     {
         super("Manager");
         this.initialBudget = initialBudget;
+        this.initialEnergyUse = initialEnergyUse;
     }
 
     onAdded()
     {
         super.onAdded();
         this.addComponent(new Budget(this.initialBudget));
+        this.addComponent(new EnergyUsed(this.initialEnergyUse));
     }
 }
 
@@ -163,6 +205,17 @@ class Budget extends Component
     {
         super();
         this.moneyLeft = initialBudget;
+    }
+}
+
+class EnergyUsed extends Component
+{
+    energyUsed: number;
+
+    constructor(initialEnergyUse: number)
+    {
+        super();
+        this.energyUsed = initialEnergyUse;
     }
 }
 
@@ -193,13 +246,18 @@ class MoneyBoard extends Entity
     }
 }
 
-class Guy extends Entity
+class PowerUseBoard extends Entity
 {
+    constructor(x: number, y: number, private readonly initialValue: number)
+    {
+        super("power", x, y, Layers.SCORE);
+    }
+
     onAdded()
     {
         super.onAdded();
-
-        this.addComponent(new Sprite(sprites.texture(0, 0, 8, 8)));
+        const textbox = new TextDisp(0, 0, this.initialValue.toString(), {fill: 0xffffff});
+        this.addComponent(textbox);
     }
 }
 
@@ -220,19 +278,18 @@ class ElevatorNodeManager extends Entity
     {
         super.onAdded();
 
-        for (let j = 0; j < 4; j++)
+        for (let shaft = 0; shaft < 4; shaft++)
         {
-            const shaft = [];
-            for (let i = 0; i < 7; i++)
+            const nodes = [];
+            for (let level = 0; level < 5; level++)
             {
-                const node = new ElevatorNode(`node${i}${j}`, 100 + 150 * j, i * 40 + 40, Layers.ELEVATOR_DOOR);
-                shaft.push(node);
+                const node = new ElevatorNode(shaft, level);
+                nodes.push(node);
                 this.addChild(node);
-                console.log(node);
             }
-            this.shafts.push(shaft);
+            this.shafts.push(nodes);
         }
-
+        console.log(this.shafts)
         const sys = this.getScene().getGlobalSystem<CollisionSystem>(CollisionSystem);
         if (sys !== null) {
             this.shafts.forEach(shaft => shaft.forEach(node => {
@@ -266,12 +323,17 @@ class ElevatorNodeManager extends Entity
 class ElevatorNode extends Entity
 {
     private _selected = false;
-    private circle = new RenderCircle(5, 0, 3, null, 0xff0000);
+    private circle: Component = new Sprite(sprites.texture(3, 1, 16, 16));
 
-    constructor(name: string, x?: number, y?: number, depth?: number, selected = false)
+    level: number
+    shaft: number
+
+    constructor(shaft: number, level: number)
     {
-        super(name, x, y, depth)
-        this._selected = selected;
+        super(getNodeName("ELEVATOR", level, shaft), 100 + 150 * shaft, level * 70 + 50, Layers.ELEVATOR_DOOR);
+        this.level = level;
+        this.shaft = shaft;
+        this._selected = false;
     }
 
     get selected(): boolean {
@@ -287,7 +349,7 @@ class ElevatorNode extends Entity
     {
         this._selected = true;
         this.removeComponent(this.circle, true);
-        this.circle = new RenderCircle(5, 0, 3, null, 0x0000ff);
+        this.circle =  new Sprite(sprites.texture(4, 1, 16, 16));
         this.addComponent(this.circle)
     }
 
@@ -295,7 +357,7 @@ class ElevatorNode extends Entity
     {
         this._selected = false;
         this.removeComponent(this.circle, true);
-        this.circle = new RenderCircle(5, 0, 3, null, 0xff0000);
+        this.circle = new Sprite(sprites.texture(3, 1, 16, 16));
         this.addComponent(this.circle)
     }
 }
