@@ -1,5 +1,7 @@
 import Ngraph, {Graph, Link, Node, NodeId} from "ngraph.graph";
 import {aStar, PathFinderOptions} from "ngraph.path";
+import {Scene} from "../../../lagom-engine";
+import {Elevator} from "../Elevator";
 
 export interface HellLink
 {
@@ -36,7 +38,7 @@ export class HellGraph
         }
     }
 
-    public addElevator(startLevel: number, endLevel: number, shaft: number)
+    public addElevator(startLevel: number, endLevel: number, shaft: number, scene: Scene)
     {
         if (startLevel >= this.levels || startLevel < 1 ||
             endLevel >= this.levels || endLevel < 1 ||
@@ -64,6 +66,9 @@ export class HellGraph
 
         this.addLink(getNodeName("ELEVATOR", endLevel, shaft), getNodeName("FLOOR", endLevel, shaft),
             {type: "ALIGHT", distance: 0})
+
+        // Spawn the elevator.
+        scene.addEntity(new Elevator(startLevel, endLevel, shaft));
     }
 
     public pathfind(startNode: string, endNode: string): Node<HellNode>[]

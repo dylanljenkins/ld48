@@ -13,7 +13,7 @@ import {
     TimerSystem
 } from "lagom-engine";
 import spritesheet from './Art/spritesheet.png';
-import {DoorStateSystem, Elevator} from "./Elevator";
+import {DoorStateSystem, Elevator, ElevatorMover} from "./Elevator";
 import {GraphLocation, GraphTarget, Guy, GuyMover, Path, Pathfinder} from "./Guy/Guy";
 
 export const sprites = new SpriteSheet(spritesheet, 16, 16);
@@ -80,10 +80,10 @@ class MainScene extends Scene
 {
     onAdded()
     {
-        graph.addElevator(1, 5, 2)
-        graph.printGraph()
+        graph.addElevator(1, 5, 2, this);
+        graph.printGraph();
         const result = graph.pathfind(getNodeName("FLOOR", 1, 1), getNodeName("FLOOR", 5, 4))
-        console.log(result)
+        console.log(result);
 
         super.onAdded();
 
@@ -94,6 +94,7 @@ class MainScene extends Scene
         this.addGlobalSystem(new FrameTriggerSystem());
 
         this.addSystem(new DoorStateSystem());
+        this.addSystem(new ElevatorMover());
 
         this.addEntity(new GameManager(initialBudget, initialEnergyCost));
         this.addEntity(new MoneyBoard(50, 50, 1000));
@@ -106,8 +107,6 @@ class MainScene extends Scene
         this.addEntity(guy);
 
         this.addGUIEntity(new Diagnostics("white", 5, true));
-
-        this.addEntity(new Elevator(200, 200));
 
         this.addBackground();
         this.makeFloors();

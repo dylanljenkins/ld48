@@ -9,16 +9,17 @@ enum ElevatorStates
 
 export class Elevator extends Entity
 {
-    constructor(x: number, y: number)
+    constructor(readonly startLevel: number, readonly endLevel: number, readonly shaft: number)
     {
-        super("elevator", x, y, Layers.ELEVATOR);
+        super("elevator", 120 + 150 * shaft, startLevel * 70 + 50, Layers.ELEVATOR);
     }
 
     onAdded()
     {
         super.onAdded();
 
-        this.addComponent(new ElevatorComp());
+        this.addComponent(new ElevatorComp(this.startLevel, this.endLevel, this.shaft));
+        this.addComponent(new ElevatorDestination(this.endLevel, "DOWN"));
 
         this.addComponent(new AnimatedSpriteController(ElevatorStates.Closed, [
             {
@@ -33,8 +34,55 @@ export class Elevator extends Entity
     }
 }
 
+class ElevatorDestination extends Component
+{
+    constructor(public destinationLevel: number, public direction: "UP" | "DOWN")
+    {
+        super();
+    }
+}
+
+export class ElevatorMover extends System
+{
+    types = () => [ElevatorDestination, ElevatorComp];
+
+    update(delta: number): void
+    {
+        this.runOnEntities((entity: Entity, destination: ElevatorDestination, elevator: ElevatorComp) =>
+        {
+            // Check if we are there.
+            const destY = destination.destinationLevel * 70 + 50;
+            const distanceToGoal = destY - entity.transform.y
+            let moveDist = Math.min(70 * (delta / 1000), Math.abs(distanceToGoal));
+            moveDist *= Math.sign(distanceToGoal);
+
+            entity.transform.y += moveDist;
+
+            // We made it.
+            if (moveDist === distanceToGoal)
+            {
+                destination.destroy();
+
+                // TODO make this able to handle stops
+                if (elevator.endLevel == destination.destinationLevel)
+                {
+                    entity.addComponent(new ElevatorDestination(elevator.startLevel, "UP"));
+                } else
+                {
+                    entity.addComponent(new ElevatorDestination(elevator.endLevel, "DOWN"));
+
+                }
+            }
+        });
+    }
+}
+
 class ElevatorComp extends Component
 {
+    constructor(readonly startLevel: number, readonly endLevel: number, readonly shaft: number)
+    {
+        super();
+    }
 }
 
 export class SwapDoorState extends Component
