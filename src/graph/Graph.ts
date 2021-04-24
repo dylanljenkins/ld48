@@ -2,6 +2,7 @@ import Ngraph, {Graph, Link, Node, NodeId} from "ngraph.graph";
 import {aStar, PathFinderOptions} from "ngraph.path";
 import {Scene} from "../../../lagom-engine";
 import {Elevator} from "../Elevator";
+import {hellLayout} from "../LD48";
 
 export interface HellLink
 {
@@ -24,6 +25,46 @@ export class HellGraph
     {
         for (let level = 0; level < this.levels; level++)
         {
+            const levelLayout = hellLayout[level];
+            for (let i = 0; i < 3; i++)
+            {
+                const thisShaft = levelLayout[i];
+
+                switch (thisShaft)
+                {
+                    case 0:
+                    {
+                        this.graph.addNode(getNodeName("FLOOR", level, i + 0));
+                        this.graph.addNode(getNodeName("FLOOR", level, i + 0.5));
+                        this.graph.addLink(getNodeName("FLOOR", level, i + 0), getNodeName("FLOOR", level, i + 0.5));
+                        break;
+                    }
+                    case 1:
+                    {
+                        this.graph.addNode(getNodeName("FLOOR", level, i + 0));
+                        this.graph.addNode(getNodeName("FLOOR", level, i + 1));
+                        this.graph.addLink(getNodeName("FLOOR", level, i + 0), getNodeName("FLOOR", level, i + 1));
+                        break;
+                    }
+                    case 2:
+                    {
+                        this.graph.addNode(getNodeName("FLOOR", level, i + 0));
+                        this.graph.addNode(getNodeName("FLOOR", level, i + 0.5));
+                        this.graph.addNode(getNodeName("FLOOR", level, i + 1));
+                        this.graph.addLink(getNodeName("FLOOR", level, i + 0), getNodeName("FLOOR", level, i + 0.5));
+                        this.graph.addLink(getNodeName("FLOOR", level, i + 0.5), getNodeName("FLOOR", level, i + 1));
+                        break;
+                    }
+                    case 3:
+                    {
+                        this.graph.addNode(getNodeName("FLOOR", level, i + 0.5));
+                        this.graph.addNode(getNodeName("FLOOR", level, i + 1));
+                        this.graph.addLink(getNodeName("FLOOR", level, i + 0.5), getNodeName("FLOOR", level, i + 1));
+                        break;
+                    }
+                }
+            }
+
             for (let shaft = 0; shaft < this.shafts; shaft++)
             {
                 this.graph.addNode(getNodeName("FLOOR", level, shaft), {type: "FLOOR"})
@@ -85,11 +126,17 @@ export class HellGraph
     public printGraph()
     {
         const nodes: Node<HellNode>[] = [];
-        this.graph.forEachNode((node) => {nodes.push(node)})
+        this.graph.forEachNode((node) =>
+        {
+            nodes.push(node)
+        })
         console.log(nodes);
 
         const links: Link<HellLink>[] = [];
-        this.graph.forEachLink((link => {links.push(link)}))
+        this.graph.forEachLink((link =>
+        {
+            links.push(link)
+        }))
         console.log(links);
     }
 

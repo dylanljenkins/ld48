@@ -13,10 +13,12 @@ import {
     TimerSystem
 } from "lagom-engine";
 import spritesheet from './Art/spritesheet.png';
+import roomsheet from './Art/chambers.png';
 import {DoorStateSystem, ElevatorMover} from "./Elevator";
 import {GraphLocation, GraphTarget, Guy, GuyMover, Path, Pathfinder} from "./Guy/Guy";
 
 export const sprites = new SpriteSheet(spritesheet, 16, 16);
+export const rooms = new SpriteSheet(roomsheet, 150, 64);
 
 export enum Layers
 {
@@ -26,6 +28,14 @@ export enum Layers
     GUYS,
     SCORE
 }
+
+export const hellLayout = [
+    [3, 1, 0],
+    [1, -1, 2],
+    [0, 2, 1],
+    [3, -1, 3],
+    [1, 0, 2]
+];
 
 export const graph = new HellGraph();
 
@@ -82,7 +92,7 @@ class MainScene extends Scene
     {
         graph.addElevator(0, 4, 2, this);
         // graph.printGraph()
-        const result = graph.pathfind(getNodeName("FLOOR", 1, 1), getNodeName("FLOOR", 4, 3))
+        // const result = graph.pathfind(getNodeName("FLOOR", 1, 1), getNodeName("FLOOR", 4, 3))
         // console.log(result)
 
         super.onAdded();
@@ -151,8 +161,17 @@ class MainScene extends Scene
         }
 
         // Rooms
-        background.addComponent(new Sprite(sprites.texture(0, 4, 128, 64),
-            {xOffset: 100, yOffset: 100}));
+        for (let i = 0; i < 5; i++)
+        {
+            for (let j = 0; j < 3; j++)
+            {
+                const room = hellLayout[i][j];
+
+                if (room === -1) continue;
+                background.addComponent(new Sprite(rooms.texture(0, room),
+                    {xOffset: 8 + 100 + 150 * j, yOffset: i * 70 + 3}));
+            }
+        }
     }
 }
 
