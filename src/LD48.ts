@@ -1,19 +1,8 @@
 import {getNodeName, HellGraph} from "./graph/Graph";
-import {
-    Component,
-    Diagnostics,
-    Entity,
-    FrameTriggerSystem,
-    Game,
-    MathUtil,
-    Scene,
-    Sprite,
-    SpriteSheet,
-    TextDisp,
-    TimerSystem
-} from "lagom-engine";
+import {Component, Diagnostics, Entity, Game, MathUtil, PIXIComponent, Scene, Sprite, SpriteSheet, TextDisp} from "lagom-engine";
 import spritesheet from './Art/spritesheet.png';
 import {DoorStateSystem, Elevator} from "./Elevator";
+import {GraphLocation, GraphTarget, Guy, Path, Pathfinder} from "./Guy/Guy";
 
 export const sprites = new SpriteSheet(spritesheet, 16, 16);
 
@@ -26,6 +15,7 @@ export enum Layers
     SCORE
 }
 
+export const graph = new HellGraph();
 
 export class LD48 extends Game
 {
@@ -54,7 +44,6 @@ class MainScene extends Scene
 {
     onAdded()
     {
-        const graph = new HellGraph();
         graph.addElevator(1, 5, 2)
         graph.printGraph()
         const result = graph.pathfind(getNodeName("FLOOR", 1, 1), getNodeName("FLOOR", 5, 4))
@@ -63,6 +52,7 @@ class MainScene extends Scene
         super.onAdded();
 
         const initialBudget = 1000;
+        const initialEnergyCost = 0;
 
         this.addGlobalSystem(new TimerSystem());
         this.addGlobalSystem(new FrameTriggerSystem());
@@ -71,13 +61,22 @@ class MainScene extends Scene
 
         this.addEntity(new GameManager(initialBudget));
         this.addEntity(new MoneyBoard(50, 50, 1000));
-        this.addEntity(new Guy("guy", 100, 100, Layers.GUYS));
+        this.addEntity(new PowerUseBoard(600, 10, initialEnergyCost));
+
+        const guy = new Guy("guy", 100, 200, Layers.GUYS)
+        guy.addComponent(new GraphLocation(getNodeName("FLOOR", 4, 1)))
+        guy.addComponent(new GraphTarget(getNodeName("FLOOR", 4, 3)))
+        guy.addComponent(new Path())
+        this.addEntity(guy);
+
         this.addGUIEntity(new Diagnostics("white", 5, true));
 
         this.addEntity(new Elevator(200, 200));
 
         this.addBackground();
         this.makeFloors();
+
+        this.addSystem(new Pathfinder())
     }
 
     private makeFloors()
@@ -171,13 +170,18 @@ class MoneyBoard extends Entity
     }
 }
 
-class Guy extends Entity
+class PowerUseBoard extends Entity
 {
+    constructor(x: number, y: number, private readonly initialValue: number)
+    {
+        super("power", x, y, Layers.SCORE);
+    }
+
     onAdded()
     {
         super.onAdded();
-
-        this.addComponent(new Sprite(sprites.texture(0, 0, 8, 8)));
+        const textbox = new TextDisp(0, 0, this.initialValue.toString(),{fill: 0xffffff});
+        this.addComponent(textbox);
     }
 }
 
