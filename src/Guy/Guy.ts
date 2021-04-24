@@ -2,7 +2,7 @@ import {AnimatedSpriteController, AnimationEnd, Component, Entity, Log, MathUtil
 import {graph, sprites} from "../LD48";
 import {HellLink, HellNode} from "../graph/Graph";
 import {Link, Node} from "ngraph.graph";
-import {ElevatorDestination} from "../Elevator";
+import {StoppedElevatorInfo} from "../Elevator";
 
 export class Guy extends Entity
 {
@@ -82,7 +82,6 @@ export class GuyMover extends System
 
             console.log(nextLink.data.type)
 
-            // Skip through elevator nodes - they aren't used now that elevators can't stop half way.
             if (nextLink.data.type === "ELEVATOR")
             {
                 guyLocation.node = nextNode.id as string
@@ -94,11 +93,28 @@ export class GuyMover extends System
 
                 if (elevator === null) throw Error("Bad");
 
-                const destination = elevator.getComponent<ElevatorDestination>(ElevatorDestination);
+                const stoppedInfo = elevator.getComponent<StoppedElevatorInfo>(StoppedElevatorInfo);
 
-                // If the elevator has a destination, it's moving.
-                if (destination)
+                if (stoppedInfo)
                 {
+                    // Getting onto the elevator.
+                    if (guyLocation.state === "WALKING")
+                    {
+                        // It's our stop!
+                        if (nextNode.id === stoppedInfo.node)
+                        {
+                            guyLocation.node = nextNode.id as string
+                            guyLocation.state = "WAITING";
+                        }
+                    }
+                    // Getting off of the elevator.
+                    else if (guyLocation.state === "ELEVATING")
+                    {
+                        guyLocation.node = nextNode.id as string;
+                        guyLocation.state = "WALKING";
+                    }
+                }
+                else {
                     // We're on it, and it's moving.
                     if (guyLocation.state === "WAITING")
                     {
@@ -109,20 +125,6 @@ export class GuyMover extends System
                     {
                         entity.transform.x = elevator.transform.x + 5
                         entity.transform.y = elevator.transform.y + 5
-                    }
-                }
-                // It's at a stop
-                else
-                {
-                    if (guyLocation.state === "ELEVATING")
-                    {
-                        guyLocation.node = nextNode.id as string;
-                        guyLocation.state = "WALKING";
-                    }
-                    else if (guyLocation.state === "WALKING")
-                    {
-                        guyLocation.node = nextNode.id as string
-                        guyLocation.state = "WAITING";
                     }
                 }
 

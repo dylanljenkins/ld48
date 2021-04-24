@@ -110,26 +110,19 @@ export class HellGraph
             throw Error(`Elevator is invalid. Start: ${startLevel}, End: ${endLevel}, Shaft: ${shaft}`)
         }
 
-        for (let level = startLevel; level <= endLevel; level++)
-        {
-            this.graph.addNode(getNodeName("ELEVATOR", level, shaft), {type: "ELEVATOR"})
+        const start = getNodeName("ELEVATOR", startLevel, shaft)
+        const end = getNodeName("ELEVATOR", endLevel, shaft)
 
-            // Link all levels of an elevator together
-            if (level !== startLevel)
-            {
-                this.addLink(getNodeName("ELEVATOR", level, shaft), getNodeName("ELEVATOR", level - 1, shaft),
-                    {type: "ELEVATOR", distance: 1, elevator: null})
-            }
-        }
+        this.graph.addNode(start, {type: "ELEVATOR"})
+        this.graph.addNode(end, {type: "ELEVATOR"})
+
+        this.addLink(start, end, {type: "ELEVATOR", distance: 1, elevator: null})
 
         const elevator = new Elevator(startLevel, endLevel, shaft);
 
         // Add links for the elevators and the start/end floors.
-        this.addLink(getNodeName("ELEVATOR", startLevel, shaft), getNodeName("FLOOR", startLevel, shaft),
-            {type: "ALIGHT", distance: 15, elevator: elevator})
-
-        this.addLink(getNodeName("ELEVATOR", endLevel, shaft), getNodeName("FLOOR", endLevel, shaft),
-            {type: "ALIGHT", distance: 15, elevator: elevator})
+        this.addLink(start, getNodeName("FLOOR", startLevel, shaft), {type: "ALIGHT", distance: 15, elevator: elevator})
+        this.addLink(end, getNodeName("FLOOR", endLevel, shaft), {type: "ALIGHT", distance: 15, elevator: elevator})
 
 
         // Spawn the elevator.

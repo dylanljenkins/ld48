@@ -1,19 +1,27 @@
 import {getNodeName, HellGraph} from "./graph/Graph";
 import {
     CircleCollider,
-    CollisionMatrix, CollisionSystem,
+    CollisionMatrix,
+    CollisionSystem,
     Component,
-    Diagnostics, DiscreteCollisionSystem,
+    Diagnostics,
+    DiscreteCollisionSystem,
     Entity,
-    Game, GlobalSystem, LagomType,
+    FrameTriggerSystem,
+    Game,
+    GlobalSystem,
+    LagomType,
+    Log,
+    LogLevel,
     MathUtil,
-    Mouse, RectCollider,
+    Mouse,
     RenderCircle,
     Scene,
     Sprite,
     SpriteSheet,
-    TextDisp, Timer,    TimerSystem,
-    FrameTriggerSystem,
+    TextDisp,
+    Timer,
+    TimerSystem
 } from "lagom-engine";
 import spritesheet from './Art/spritesheet.png';
 import roomsheet from './Art/chambers.png';
@@ -33,6 +41,8 @@ export enum Layers
     SCORE,
     MOUSE
 }
+
+Log.logLevel = LogLevel.ERROR;
 
 export const hellLayout = [
     [3, 1, 0],
