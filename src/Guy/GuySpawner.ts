@@ -30,7 +30,8 @@ export class GuySpawner extends System
 
             const start = potentialStarts[Math.floor(Math.random() * potentialStarts.length)]
 
-            const goalId = MathUtil.randomRange(0, potentialGoals.length);
+            // This should only go to 4, any more than 4 potential goals will not be used.
+            const goalId = MathUtil.randomRange(0, 4);
             const goal = potentialGoals[goalId];
 
             const guy = this.getScene().addEntity(

@@ -25,6 +25,7 @@ import {
 } from "lagom-engine";
 import spritesheet from './Art/spritesheet.png';
 import roomsheet from './Art/chambers.png';
+import portalSheet from './Art/portals.png';
 import {
     DoorStateSystem, ElevatorComp,
     ElevatorDestination,
@@ -39,6 +40,7 @@ import {GuySpawner} from "./Guy/GuySpawner";
 
 export const sprites = new SpriteSheet(spritesheet, 16, 16);
 export const rooms = new SpriteSheet(roomsheet, 150, 64);
+export const portals = new SpriteSheet(portalSheet, 32, 32);
 
 export enum Layers
 {
@@ -54,11 +56,11 @@ export enum Layers
 Log.logLevel = LogLevel.ALL;
 
 export const hellLayout = [
-    [3, 1, 0],
-    [1, -1, 2],
-    [0, 2, 1],
-    [3, -1, 3],
-    [1, 0, 2]
+    [3, 1, -1],
+    [1, -1, 1],
+    [0, 1, -1],
+    [-1, -1, 3],
+    [1, 0, -1]
 ];
 
 export class LD48 extends Game
