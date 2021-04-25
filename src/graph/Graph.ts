@@ -65,10 +65,10 @@ export class HellGraph extends Entity
                     case 2:
                     {
                         const floor1 = this.addFloor(level, i, false);
-                        const floor2 = this.addGoal(level, i + 0.5, goalCount++);
+                        // const floor2 = this.addGoal(level, i + 0.5, goalCount++);
                         const floor3 = this.addFloor(level, i + 1, false);
-                        this.addFloorLink(floor1, floor2);
-                        this.addFloorLink(floor2, floor3);
+                        // this.addFloorLink(floor1, floor2);
+                        // this.addFloorLink(floor2, floor3);
                         break;
                     }
                     case 3:
