@@ -159,7 +159,7 @@ export class GuyMover extends System
                         if (stopped && nextNode.id === stopped.node)
                         {
                             // Get on elevator.
-                            GuyMover.moveTowards(entity, nextNode, 0.5, delta, spr, guyLocation);
+                            GuyMover.moveTowards(entity, nextNode, 0.25, delta, spr, guyLocation);
                         }
                         else
                         {
@@ -172,7 +172,7 @@ export class GuyMover extends System
                 }
                 case "FLOOR":
                 {
-                    GuyMover.moveTowards(entity, nextNode, 1, delta, spr, guyLocation)
+                    GuyMover.moveTowards(entity, nextNode, 0.5, delta, spr, guyLocation)
                 }
             }
         })
@@ -185,6 +185,18 @@ export class GuyMover extends System
     {
         const guy = getCenterCoords(source)
         const dest = getCenterCoords(destination.data.entity)
+
+        switch (destination.data.type)
+        {
+            case "ELEVATOR":
+                break;
+            case "GOAL":
+                dest.x -= 8;
+                dest.y -= 4;
+                break;
+            case "FLOOR":
+                break;
+        }
 
         const targetDir = MathUtil.pointDirection(guy.x, guy.y, dest.x, dest.y);
         const targetDistance = MathUtil.pointDistance(guy.x, guy.y, dest.x, dest.y);

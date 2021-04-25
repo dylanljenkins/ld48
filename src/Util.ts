@@ -2,7 +2,7 @@ import {Entity} from "lagom-engine";
 
 export class Coords
 {
-    constructor(readonly x: number, readonly y: number)
+    constructor(public x: number, public y: number)
     {
     }
 }

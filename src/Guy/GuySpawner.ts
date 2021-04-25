@@ -60,13 +60,17 @@ export class GuySpawner extends System
             })
 
             guyPortal.addComponent(new Timer(800, null)).onTrigger.register(caller => {
+
+                const x = start.data.entity.transform.x + (Math.random() - 0.5) * 20;
+                const y = start.data.entity.transform.y + (Math.random() - 0.5) * 10;
+
                 const guycoming = caller.getScene().addEntity(
-                    new Entity("guycomingin", start.data.entity.transform.x, start.data.entity.transform.y - 10))
+                    new Entity("guycomingin", x, y - 10))
                 guycoming.addComponent(new Sprite(sprites.texture(0, 0, 8, 8)));
                 guycoming.addComponent(new DropMe(20));
                 guycoming.addComponent(new Timer(500, guyPortal)).onTrigger.register((caller1, data) => {
                     const guy = caller1.getScene().addEntity(
-                        new Guy("guy", start.data.entity.transform.x, start.data.entity.transform.y, Layers.GUYS));
+                        new Guy("guy", x, y, Layers.GUYS));
                     guy.addComponent(new Path())
                     guy.addComponent(new GraphLocation(start.id))
                     guy.addComponent(new GraphTarget(goal.id))
