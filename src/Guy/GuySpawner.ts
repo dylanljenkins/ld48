@@ -31,12 +31,17 @@ export class GuySpawner extends System
 
             const start = potentialStarts[Math.floor(Math.random() * potentialStarts.length)]
 
+            const xMod = (Math.random() - 0.5) * 20;
+            const yMod = (Math.random() - 0.5) * 10;
+
             // This should only go to 4, any more than 4 potential goals will not be used.
             const goalId = MathUtil.randomRange(0, 4);
             const goal = potentialGoals[goalId];
 
             const guyPortal = this.getScene().addEntity(
-                new Entity("guyportal", start.data.entity.transform.x - 4, start.data.entity.transform.y - 16, Layers.GUYS));
+                new Entity("guyportal", start.data.entity.transform.x - 4 + xMod,
+                    start.data.entity.transform.y - 16 + yMod,
+                    Layers.GUYS));
             const sprCon = guyPortal.addComponent(new AnimatedSpriteController(0, [
                 {
                     id: 0,
@@ -59,10 +64,10 @@ export class GuySpawner extends System
                 }]));
             })
 
-            guyPortal.addComponent(new Timer(800, null)).onTrigger.register(caller => {
+            guyPortal.addComponent(new Timer(800, [xMod, yMod])).onTrigger.register((caller, data) => {
 
-                const x = start.data.entity.transform.x + (Math.random() - 0.5) * 20;
-                const y = start.data.entity.transform.y + (Math.random() - 0.5) * 10;
+                const x = start.data.entity.transform.x + data[0];
+                const y = start.data.entity.transform.y + data[1];
 
                 const guycoming = caller.getScene().addEntity(
                     new Entity("guycomingin", x, y - 10))
