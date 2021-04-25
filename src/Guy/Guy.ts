@@ -47,8 +47,8 @@ export class GuyDestroyer extends System
 
 export class GraphLocation extends Component
 {
-    public elevatorX = ((Math.random() - 0.5) * 4) + 4
-    public elevatorY = ((Math.random() - 0.5) * 4) + 4
+    public elevatorX = ((Math.random() - 0.5) * 8) + 4
+    public elevatorY = ((Math.random() - 0.5) * 8) + 4
 
     constructor(public node: string | number, public onElevator = false)
     {
@@ -155,7 +155,7 @@ export class GuyMover extends System
 
                     if (guyLocation.onElevator)
                     {
-                        // TODO slightly random position in elevator based on var on guy.
+                        // Slightly random position in elevator based on var on guy.
                         entity.transform.x = elevator.transform.x + guyLocation.elevatorX
                         entity.transform.y = elevator.transform.y + guyLocation.elevatorY
 
