@@ -69,7 +69,7 @@ export class LD48 extends Game
 {
     constructor()
     {
-        super({width: 640, height: 360, resolution: 2, backgroundColor: 0xd95763});
+        super({width: 640, height: 360, resolution: 2, backgroundColor: 0x45283C});
         this.setScene(new MainScene(this));
     }
 }
