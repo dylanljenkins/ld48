@@ -108,6 +108,12 @@ export class HellGraph extends Entity
         return scene.addEntity(elevator);
     }
 
+    public destroyElevator(startLevel: number, endLevel: number, shaft: number)
+    {
+        this.graph.removeNode(getNodeName("ELEVATOR", startLevel, shaft))
+        this.graph.removeNode(getNodeName("ELEVATOR", endLevel, shaft))
+    }
+
     public pathfind(startNode: string | number, endNode: string | number): Node<HellNode>[]
     {
         const options: PathFinderOptions<HellNode, HellLink> = {
