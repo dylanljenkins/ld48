@@ -19,18 +19,16 @@ export class GuySpawner extends System
 
             this.timeout = 2000;
 
-            const nodes: Node<HellNode>[] = []
+            const potentialStarts: Node<HellNode>[] = []
+            const potentialGoals: Node<HellNode>[] = []
 
             entity.graph.forEachNode(node =>
             {
-                if (node?.data?.type === "FLOOR") nodes.push(node)
+                if (node?.data?.type === "FLOOR") potentialStarts.push(node)
+                if (node?.data?.type === "GOAL") potentialGoals.push(node)
             })
 
-            const start = nodes[Math.floor(Math.random() * nodes.length)]
-
-            // Start can't be goal
-            const potentialGoals = nodes.filter(node => node !== start)
-
+            const start = potentialStarts[Math.floor(Math.random() * potentialStarts.length)]
             const goal = potentialGoals[Math.floor(Math.random() * potentialGoals.length)]
 
             const guy = this.getScene().addEntity(

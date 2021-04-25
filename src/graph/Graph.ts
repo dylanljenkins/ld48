@@ -3,7 +3,7 @@ import {aStar, PathFinderOptions} from "ngraph.path";
 import {Component, Entity, Scene} from "lagom-engine";
 import {Elevator} from "../Elevator";
 import {hellLayout} from "../LD48";
-import {FloorNode} from "./FloorNode";
+import {FloorNode, GoalType} from "./FloorNode";
 
 export interface HellLink
 {
@@ -11,7 +11,7 @@ export interface HellLink
     distance: number,
 }
 
-type HellNodeType = "FLOOR" | "ELEVATOR"
+type HellNodeType = "FLOOR" | "ELEVATOR" | "GOAL"
 
 export interface HellNode
 {
@@ -49,7 +49,7 @@ export class HellGraph extends Entity
                     case 0:
                     {
                         const floor1 = this.addFloor(level, i)
-                        const floor2 = this.addFloor(level, i + 0.5);
+                        const floor2 = this.addGoal(level, i + 0.5, GoalType.RED);
                         this.addFloorLink(floor1, floor2);
                         break;
                     }
@@ -63,7 +63,7 @@ export class HellGraph extends Entity
                     case 2:
                     {
                         const floor1 = this.addFloor(level, i);
-                        const floor2 = this.addFloor(level, i + 0.5);
+                        const floor2 = this.addGoal(level, i + 0.5, GoalType.BLUE);
                         const floor3 = this.addFloor(level, i + 1);
                         this.addFloorLink(floor1, floor2);
                         this.addFloorLink(floor2, floor3);
@@ -71,7 +71,7 @@ export class HellGraph extends Entity
                     }
                     case 3:
                     {
-                        const floor1 = this.addFloor(level, i + 0.5);
+                        const floor1 = this.addGoal(level, i + 0.5, GoalType.YELLOW);
                         const floor2 = this.addFloor(level, i + 1);
                         this.addFloorLink(floor1, floor2);
                         break;
@@ -134,6 +134,12 @@ export class HellGraph extends Entity
         console.log(links);
     }
 
+    private addGoal(level: number, shaft: number, goal: GoalType)
+    {
+        const entity = this.getScene().addEntity(new FloorNode(shaft, level, goal))
+        return this.addNode("GOAL", level, shaft, entity)
+    }
+
     private addFloor(level: number, shaft: number): string
     {
         const entity = this.getScene().addEntity(new FloorNode(shaft, level))
@@ -159,5 +165,5 @@ export class HellGraph extends Entity
     }
 }
 
-export const getNodeName = (type: "FLOOR" | "ELEVATOR" | "DROP", level: number, shaft: number) =>
+export const getNodeName = (type: HellNodeType | "DROP", level: number, shaft: number) =>
     `${type}: Level ${level}, Shaft ${shaft}`

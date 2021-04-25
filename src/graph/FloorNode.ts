@@ -2,17 +2,19 @@ import {Component, Entity, Sprite} from "lagom-engine";
 import {getNodeName} from "./Graph";
 import {Layers, sprites} from "../LD48";
 
+export enum GoalType
+{
+    BLUE = "BLUE",
+    RED = "RED",
+    YELLOW = "YELLOW"
+}
+
 export class FloorNode extends Entity
 {
-    level: number
-    shaft: number
-
-    constructor(shaft: number, level: number)
+    constructor(readonly shaft: number, readonly level: number, readonly goal?: GoalType)
     {
-        super(getNodeName("FLOOR", level, shaft), 120 + 150 * shaft, level * 70 + 50, Layers.ELEVATOR_DOOR);
+        super(getNodeName(goal ? "GOAL" : "FLOOR", level, shaft), 120 + 150 * shaft, level * 70 + 50, Layers.ELEVATOR_DOOR);
         this.addComponent(new FloorNodeComp());
-        this.level = level;
-        this.shaft = shaft;
     }
 
     onAdded()
