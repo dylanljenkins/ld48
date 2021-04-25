@@ -123,21 +123,9 @@ class MainScene extends Scene
         this.addEntity(new ElevatorNodeManager("Node Manager", 0, 0, Layers.ELEVATOR_NODE));
 
         this.addBackground();
-        this.makeFloors();
 
         this.addSystem(new Pathfinder())
         this.addSystem(new GuyMover())
-    }
-
-    private makeFloors()
-    {
-        for (let level = 0; level < 5; level++)
-        {
-            for (let shaft = 0; shaft < 4; shaft++)
-            {
-                this.addEntity(new FloorNode(shaft, level));
-            }
-        }
     }
 
     private addBackground()
