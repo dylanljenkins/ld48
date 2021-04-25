@@ -1,4 +1,13 @@
-import {AnimatedSpriteController, AnimationEnd, Component, Entity, Sprite, System, Timer} from "lagom-engine";
+import {
+    AnimatedSpriteController,
+    AnimationEnd,
+    Component,
+    Entity,
+    ScreenShake,
+    Sprite,
+    System,
+    Timer
+} from "lagom-engine";
 import {Layers, sprites} from "./LD48";
 import {getNodeName, HellGraph} from "./graph/Graph";
 
@@ -141,6 +150,7 @@ export class ElevatorDestroyer extends System
             if (entity.transform.position.y > 400)
             {
                 entity.destroy();
+                this.getScene().getEntityWithName<HellGraph>("HellGraph")?.addComponent(new ScreenShake(0.25, 150));
             }
         });
     }

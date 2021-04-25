@@ -1,4 +1,5 @@
 import {
+    AnimatedSprite,
     AnimatedSpriteController,
     AnimationEnd,
     Component,
@@ -6,10 +7,12 @@ import {
     Log,
     MathUtil,
     Scene,
+    ScreenShake,
+    Sprite,
     System,
     Timer
 } from "lagom-engine";
-import {sprites} from "../LD48";
+import {Layers, sprites} from "../LD48";
 import {HellGraph, HellLink, HellNode} from "../graph/Graph";
 import {Link, Node} from "ngraph.graph";
 import {DropMe, StoppedElevator} from "../Elevator";
@@ -18,10 +21,16 @@ import {Score} from "../Score";
 
 export class Guy extends Entity
 {
+    constructor(x: number, y: number, readonly goalId: number)
+    {
+        super("guy", x, y, Layers.GUYS);
+    }
+
     onAdded()
     {
         super.onAdded();
-
+        this.addComponent(new Sprite(sprites.textureFromPoints(this.goalId * 8, 48, 8, 8),
+            {xOffset: 4, yOffset: -4, xAnchor: 0.5, yAnchor: 0.5}));
         this.addComponent(new AnimatedSpriteController(0, [
             {
                 id: 0,
@@ -35,8 +44,63 @@ export class Guy extends Entity
                     animationEndAction: AnimationEnd.LOOP,
                     animationSpeed: 100
                 }
-            }]));
+            }
+        ]));
+
+        // After 15 seconds, trigger stage 1.
+        this.addComponent(new Timer(15000, null)).onTrigger.register(caller => {
+            caller.parent.addComponent(new SpinMe(2));
+
+            // After 20 seconds, increase spin speed
+            caller.parent.addComponent(new Timer(10000, null)).onTrigger.register(caller2 =>
+            {
+                const sp = caller2.getEntity().getComponent<SpinMe>(SpinMe);
+                if (sp !== null) sp.speed = 4;
+                caller2.parent.addComponent(new Timer(10000, null)).onTrigger.register(caller3 => {
+                    const sp = caller3.getEntity().getComponent<SpinMe>(SpinMe);
+                    if (sp !== null) sp.speed = 6;
+
+                    caller3.parent.addComponent(new Timer(10000, null)).onTrigger.register(caller4 => {
+                        // POP
+                        caller4.parent.addComponent(new AnimatedSprite(sprites.textureSliceFromRow(4, 0, 7),
+                            {
+                                animationEndAction: AnimationEnd.STOP,
+                                animationSpeed: 100,
+                                xOffset: -4,
+                                yOffset: -4
+                            }));
+                        caller4.parent.addComponent(new ScreenShake(0.1, 500));
+
+                        caller4.parent.addComponent(new Timer(700, null)).onTrigger.register(caller5 => {
+                            caller5?.parent?.getScene().getEntityWithName("scoredisp")?.getComponent<Score>(Score)
+                                   ?.sub1(caller5.parent);
+                            caller5?.parent.destroy();
+                        })
+                    });
+                });
+            });
+        });
     }
+}
+
+class SpinMe extends Component
+{
+    constructor(public speed: number)
+    {
+        super();
+    }
+}
+
+export class Spinner extends System
+{
+    update(delta: number): void
+    {
+        this.runOnEntities((entity: Entity, sprite: Sprite, spin: SpinMe) => {
+            sprite.applyConfig({rotation: sprite.pixiObj.rotation + spin.speed * (delta / 1000)});
+        });
+    }
+
+    types = () => [Sprite, SpinMe];
 }
 
 export class GuyDestroyer extends System
@@ -48,7 +112,7 @@ export class GuyDestroyer extends System
         this.runOnEntities((guy: Guy) => {
             if (guy.transform.position.y > 390)
             {
-                guy?.parent?.getScene().getEntityWithName("scoredisp")?.getComponent<Score>(Score)?.sub1(guy);
+                guy?.parent?.getScene().getEntityWithName("scoredisp")?.getComponent<Score>(Score)?.sub1(guy, true);
                 guy.destroy();
             }
         })

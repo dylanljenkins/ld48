@@ -1,7 +1,6 @@
-import {Component, Entity, System, TextDisp, Timer} from "lagom-engine";
+import {Component, Entity, MathUtil, System, TextDisp, Timer} from "lagom-engine";
 import {Layers} from "./LD48";
 import {DropMe} from "./Elevator";
-import {MathUtil} from "lagom-engine/dist";
 
 export class ScoreDisplay extends Entity
 {
@@ -51,10 +50,10 @@ export class Score extends Component
         this.getScene().addGUIEntity(new ScoreToast(entity.transform.x, entity.transform.y, "+5s"));
     }
 
-    sub1(entity: Entity)
+    sub1(entity: Entity, offscreen = false)
     {
         this.score -= 1;
-        // this.getScene().addGUIEntity(new ScoreToast(entity.transform.x, entity.transform.y, "-1"));
+        this.getScene().addGUIEntity(new ScoreToast(entity.transform.x, offscreen ? 350 : entity.transform.y, "-1"));
     }
 }
 
