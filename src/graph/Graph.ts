@@ -173,5 +173,5 @@ export class HellGraph extends Entity
     }
 }
 
-export const getNodeName = (type: HellNodeType | "DROP", level: number, shaft: number) =>
+export const getNodeName = (type: HellNodeType | "DROP" | "ELEVATOR_LINK", level: number, shaft: number) =>
     `${type}: Level ${level}, Shaft ${shaft}`

@@ -44,6 +44,7 @@ export const portals = new SpriteSheet(portalSheet, 32, 32);
 export enum Layers
 {
     BACKGROUND,
+    ELEVATOR_LINK,
     ELEVATOR,
     ELEVATOR_DOOR,
     ELEVATOR_NODE,
@@ -110,7 +111,7 @@ class MainScene extends Scene
         this.addSystem(new GuyDestroyer());
 
         this.addGUIEntity(new Diagnostics("white", 5, true));
-        this.addEntity(new ElevatorNodeManager("Node Manager", 0, 0, Layers.ELEVATOR_NODE));
+        this.addEntity(new ElevatorNodeManager("Node Manager", 0, 0, Layers.ELEVATOR_LINK));
 
         this.addBackground();
     }
@@ -308,6 +309,8 @@ class ElevatorNodeManager extends Entity
     }
 }
 
+
+
 class ElevatorNode extends Entity
 {
     private static sprite_width = 16;
@@ -365,9 +368,16 @@ class ElevatorNode extends Entity
 
                                 const elevator = graph.addElevator(start, end, this.shaft, this.parent.getScene(), this.level < firstNode.level);
                                 this.shaftNodes.forEach(node => node.destroy());
+                                const elevatorLinks:Entity[] = []
+                                elevatorLinks.push(this.parent.addChild(new ElevatorLinkTop(this.shaft, start)));
+                                elevatorLinks.push(this.parent.addChild(new ElevatorLinkMiddle(this.shaft, start, end)));
+                                elevatorLinks.push(this.parent.addChild(new ElevatorLinkBottom(this.shaft, end)));
 
-                                const dropButton = new ElevatorDropButton(this.shaft,start,elevator, this.deleteCallback);
-                                this.parent.addChild(dropButton);
+                                const callbackWrapper = () => {
+                                    this.deleteCallback();
+                                    elevatorLinks.forEach(link => this.parent?.removeChild(link));
+                                }
+                                this.parent.addChild(new ElevatorDropButton(this.shaft,start,elevator, callbackWrapper));
                             }
                         }
                         else if (selectedNodes.length == 0)
@@ -431,5 +441,62 @@ class ElevatorDropButton extends Entity
                 }
             });
         }
+    }
+}
+
+class ElevatorLinkTop extends Entity
+{
+    constructor(shaft: number, level: number)
+    {
+        super(getNodeName("ELEVATOR_LINK", level, shaft), 100 + 150 * shaft, level * 70 + 50, Layers.BACKGROUND);
+    }
+
+    onAdded()
+    {
+        super.onAdded();
+        this.addComponent(new Sprite(sprites.texture(5, 1, 16, 16)))
+    }
+}
+
+class ElevatorLinkBottom extends Entity
+{
+    constructor(shaft: number, level: number)
+    {
+        super(getNodeName("ELEVATOR_LINK", level, shaft), 100 + 150 * shaft, level * 70 + 50, Layers.BACKGROUND);
+    }
+
+    onAdded()
+    {
+        super.onAdded();
+        this.addComponent(new Sprite(sprites.texture(6, 1, 16, 16)))
+    }
+}
+
+class ElevatorLinkMiddle extends Entity{
+    start: number;
+    end: number;
+    constructor(shaft: number, start: number, end: number) {
+        super(getNodeName("ELEVATOR_LINK", start, shaft), 100 + 150 * shaft, start * 70 + 50, -1);
+        this.start = start
+        this.end = end;
+    }
+
+    onAdded()
+    {
+        super.onAdded();
+        const spriteHeight = 16;
+        const diffy = (this.end - this.start) * 70;
+        let currentOffsety = 0;
+        console.log(diffy)
+        while (currentOffsety < diffy - spriteHeight) {
+            if (diffy - (currentOffsety + spriteHeight) < (spriteHeight/2)) {
+                currentOffsety += (spriteHeight/4)
+            } else {
+                currentOffsety += spriteHeight;
+            }
+            this.addComponent(new Sprite(sprites.texture(7, 1, 16, 16), {yOffset:currentOffsety}))
+        }
+
+
     }
 }
