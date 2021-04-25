@@ -8,7 +8,6 @@ export interface HellLink
 {
     type: "FLOOR" | "ELEVATOR" | "ALIGHT",
     distance: number,
-    elevator: Elevator | null
 }
 
 type HellNodeType = "FLOOR" | "ELEVATOR"
@@ -47,8 +46,7 @@ export class HellGraph extends Entity
                         this.addFloor(level, i + 0.5);
                         this.addLink(getNodeName("FLOOR", level, i), getNodeName("FLOOR", level, i + 0.5), {
                             type: "FLOOR",
-                            distance: 0,
-                            elevator: null
+                            distance: 0
                         });
                         break;
                     }
@@ -58,8 +56,7 @@ export class HellGraph extends Entity
                         this.addFloor(level, i + 1);
                         this.addLink(getNodeName("FLOOR", level, i), getNodeName("FLOOR", level, i + 1), {
                             type: "FLOOR",
-                            distance: 0,
-                            elevator: null
+                            distance: 0
                         });
                         break;
                     }
@@ -70,13 +67,11 @@ export class HellGraph extends Entity
                         this.addFloor(level, i + 1);
                         this.addLink(getNodeName("FLOOR", level, i), getNodeName("FLOOR", level, i + 0.5), {
                             type: "FLOOR",
-                            distance: 0,
-                            elevator: null
+                            distance: 0
                         });
                         this.addLink(getNodeName("FLOOR", level, i + 0.5), getNodeName("FLOOR", level, i + 1), {
                             type: "FLOOR",
-                            distance: 0,
-                            elevator: null
+                            distance: 0
                         });
                         break;
                     }
@@ -86,8 +81,7 @@ export class HellGraph extends Entity
                         this.addFloor(level, i + 1);
                         this.addLink(getNodeName("FLOOR", level, i + 0.5), getNodeName("FLOOR", level, i + 1), {
                             type: "FLOOR",
-                            distance: 0,
-                            elevator: null
+                            distance: 0
                         });
                         break;
                     }
@@ -114,11 +108,11 @@ export class HellGraph extends Entity
         this.addNode("ELEVATOR", startLevel, shaft, elevator)
         this.addNode("ELEVATOR", endLevel, shaft, elevator)
 
-        this.addLink(start, end, {type: "ELEVATOR", distance: 1, elevator: null})
+        this.addLink(start, end, {type: "ELEVATOR", distance: 1})
 
         // Add links for the elevators and the start/end floors.
-        this.addLink(start, getNodeName("FLOOR", startLevel, shaft), {type: "ALIGHT", distance: 15, elevator: elevator})
-        this.addLink(end, getNodeName("FLOOR", endLevel, shaft), {type: "ALIGHT", distance: 15, elevator: elevator})
+        this.addLink(start, getNodeName("FLOOR", startLevel, shaft), {type: "ALIGHT", distance: 15})
+        this.addLink(end, getNodeName("FLOOR", endLevel, shaft), {type: "ALIGHT", distance: 15})
 
         // Spawn the elevator.
         scene.addEntity(elevator);
