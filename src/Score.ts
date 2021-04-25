@@ -62,4 +62,9 @@ export class Score extends Component
     {
         this.score += 1;
     }
+
+    sub1()
+    {
+        this.score -= 1;
+    }
 }
