@@ -1,4 +1,4 @@
-import {AnimatedSpriteController, AnimationEnd, Component, Entity, Log, System, Timer} from "lagom-engine";
+import {AnimatedSpriteController, AnimationEnd, Component, Entity, System, Timer} from "lagom-engine";
 import {Layers, sprites} from "./LD48";
 import {getNodeName, HellGraph} from "./graph/Graph";
 
@@ -55,19 +55,24 @@ export class StoppedElevator extends Component
 
 }
 
-export class ElevatorFalling extends Component
+export class DropMe extends Component
 {
+    constructor(readonly  speed: number)
+    {
+        super();
+    }
+
 }
 
-export class ElevatorDropper extends System
+export class EntityDropper extends System
 {
-    types = () => [ElevatorFalling];
+    types = () => [DropMe];
 
     update(delta: number): void
     {
-        this.runOnEntities((entity: Entity) =>
+        this.runOnEntities((entity: Entity, dropMe: DropMe) =>
         {
-            entity.transform.position.y += 160 * (delta / 1000)
+            entity.transform.position.y += dropMe.speed * (delta / 1000)
         });
     }
 
@@ -89,7 +94,7 @@ export class ElevatorDestroyer extends System
         });
     }
 
-    types = () => [ElevatorFalling];
+    types = () => [DropMe, ElevatorComp];
 }
 
 export class ElevatorMover extends System
@@ -119,7 +124,8 @@ export class ElevatorMover extends System
                 if (elevator.endLevel == destination.destinationLevel)
                 {
                     dest = new ElevatorDestination(elevator.startLevel, "UP")
-                } else
+                }
+                else
                 {
                     dest = new ElevatorDestination(elevator.endLevel, "DOWN")
                 }
