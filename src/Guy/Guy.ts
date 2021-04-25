@@ -52,12 +52,12 @@ export class Pathfinder extends System
 {
     types = () => [GraphLocation, GraphTarget, Path];
 
-    private graph: HellGraph | null | undefined;
+    private graph: HellGraph | undefined;
 
     addedToScene(scene: Scene)
     {
         super.addedToScene(scene);
-        this.graph = this.getScene().getEntityWithName<HellGraph>("HellGraph")
+        this.graph = this.getScene().getEntityWithName<HellGraph>("HellGraph") ?? undefined
     }
 
     update(delta: number): void
@@ -145,7 +145,7 @@ export class GuyMover extends System
                 return;
             }
 
-            const destination = this.scene.getEntityWithName(nextNode.id as string)
+            const destination = nextNode.data.entity
 
             if (destination !== null)
             {

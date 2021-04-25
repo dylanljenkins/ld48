@@ -28,18 +28,6 @@ export class HellGraph extends Entity
     constructor()
     {
         super("HellGraph");
-        //
-        // for (let shaft = 0; shaft < this.shafts; shaft++)
-        // {
-        //     this.graph.addNode(getNodeName("FLOOR", level, shaft), {type: "FLOOR"})
-        //
-        //     if (shaft !== 0)
-        //     {
-        //         // Link floors on the same level together.
-        //         this.addLink(getNodeName("FLOOR", level, shaft), getNodeName("FLOOR", level, shaft - 1),
-        //             {type: "FLOOR", distance: 1})
-        //     }
-        // }
     }
 
     public initGraph()
@@ -163,11 +151,6 @@ export class HellGraph extends Entity
         }))
         console.log(links);
     }
-
-    // private addElevator()
-    // {
-    //
-    // }
 
     private addFloor(level: number, shaft: number)
     {
