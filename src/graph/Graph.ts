@@ -3,7 +3,7 @@ import {aStar, PathFinderOptions} from "ngraph.path";
 import {Component, Entity, Scene} from "lagom-engine";
 import {Elevator} from "../Elevator";
 import {hellLayout} from "../LD48";
-import {FloorNode, GoalType} from "./FloorNode";
+import {FloorNode} from "./FloorNode";
 
 export interface HellLink
 {
@@ -37,6 +37,8 @@ export class HellGraph extends Entity
 
     public initGraph()
     {
+        let goalCount = 0;
+
         for (let level = 0; level < this.levels; level++)
         {
             const levelLayout = hellLayout[level];
@@ -49,7 +51,7 @@ export class HellGraph extends Entity
                     case 0:
                     {
                         const floor1 = this.addFloor(level, i)
-                        const floor2 = this.addGoal(level, i + 0.5, GoalType.RED);
+                        const floor2 = this.addGoal(level, i + 0.5, goalCount++);
                         this.addFloorLink(floor1, floor2);
                         break;
                     }
@@ -63,7 +65,7 @@ export class HellGraph extends Entity
                     case 2:
                     {
                         const floor1 = this.addFloor(level, i);
-                        const floor2 = this.addGoal(level, i + 0.5, GoalType.BLUE);
+                        const floor2 = this.addGoal(level, i + 0.5, goalCount++);
                         const floor3 = this.addFloor(level, i + 1);
                         this.addFloorLink(floor1, floor2);
                         this.addFloorLink(floor2, floor3);
@@ -71,7 +73,7 @@ export class HellGraph extends Entity
                     }
                     case 3:
                     {
-                        const floor1 = this.addGoal(level, i + 0.5, GoalType.YELLOW);
+                        const floor1 = this.addGoal(level, i + 0.5, goalCount++);
                         const floor2 = this.addFloor(level, i + 1);
                         this.addFloorLink(floor1, floor2);
                         break;
@@ -134,7 +136,7 @@ export class HellGraph extends Entity
         console.log(links);
     }
 
-    private addGoal(level: number, shaft: number, goal: GoalType)
+    private addGoal(level: number, shaft: number, goal: number)
     {
         const entity = this.getScene().addEntity(new FloorNode(shaft, level, goal))
         return this.addNode("GOAL", level, shaft, entity)
