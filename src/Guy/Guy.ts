@@ -1,6 +1,6 @@
-import {AnimatedSpriteController, AnimationEnd, Component, Entity, Log, MathUtil, System} from "lagom-engine";
-import {graph, sprites} from "../LD48";
-import {HellLink, HellNode} from "../graph/Graph";
+import {AnimatedSpriteController, AnimationEnd, Component, Entity, Log, MathUtil, Scene, System} from "lagom-engine";
+import {sprites} from "../LD48";
+import {HellGraph, HellLink, HellNode} from "../graph/Graph";
 import {Link, Node} from "ngraph.graph";
 import {StoppedElevator} from "../Elevator";
 
@@ -52,11 +52,19 @@ export class Pathfinder extends System
 {
     types = () => [GraphLocation, GraphTarget, Path];
 
+    private graph: HellGraph | null | undefined;
+
+    addedToScene(scene: Scene)
+    {
+        super.addedToScene(scene);
+        this.graph = this.getScene().getEntityWithName<HellGraph>("HellGraph")
+    }
+
     update(delta: number): void
     {
         this.runOnEntities((entity: Entity, location: GraphLocation, target: GraphTarget, path: Path) =>
         {
-            path.path = graph.pathfind(location.node, target.node);
+            path.path = this.graph!.pathfind(location.node, target.node);
         })
     }
 }

@@ -52,8 +52,6 @@ export const hellLayout = [
     [1, 0, 2]
 ];
 
-export const graph = new HellGraph();
-
 export class LD48 extends Game
 {
     constructor()
@@ -63,7 +61,7 @@ export class LD48 extends Game
     }
 }
 
-class FloorNode extends Entity
+export class FloorNode extends Entity
 {
     level: number
     shaft: number
@@ -92,6 +90,9 @@ class MainScene extends Scene
 
         super.onAdded();
 
+        const graph = this.addEntity(new HellGraph());
+        graph.initGraph();
+
         const collisionMatrix = new CollisionMatrix();
         collisionMatrix.addCollision(Layers.MOUSE, Layers.ELEVATOR_NODE);
         this.addGlobalSystem(new DiscreteCollisionSystem(collisionMatrix));
@@ -114,7 +115,7 @@ class MainScene extends Scene
 
         const guy = new Guy("guy", 100, 330, Layers.GUYS)
         guy.addComponent(new GraphLocation(getNodeName("FLOOR", 4, 0)))
-        guy.addComponent(new GraphTarget(getNodeName("FLOOR", 0, 2)))
+        guy.addComponent(new GraphTarget(getNodeName("FLOOR", 1, 2)))
         guy.addComponent(new Path())
         this.addEntity(guy);
 
@@ -346,6 +347,10 @@ class ElevatorNodeManager extends Entity
                                     const start = Math.min(node.level, firstNode.level);
                                     const end = Math.max(node.level, firstNode.level);
                                     if (this.parent != null) {
+
+                                        const graph = this.scene.getEntityWithName<HellGraph>("HellGraph");
+                                        if (!graph) return
+
                                         graph.addElevator(start, end, node.shaft, this.parent.getScene());
 
                                         const nodesInShaft = shaft/*.filter(node => node.level>= start && node.level <= end)*/;

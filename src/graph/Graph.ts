@@ -1,8 +1,8 @@
 import Ngraph, {Graph, Link, Node, NodeId} from "ngraph.graph";
 import {aStar, PathFinderOptions} from "ngraph.path";
-import {Scene} from "../../../lagom-engine";
+import {Entity, Scene} from "lagom-engine";
 import {Elevator} from "../Elevator";
-import {hellLayout} from "../LD48";
+import {FloorNode, hellLayout} from "../LD48";
 
 export interface HellLink
 {
@@ -11,18 +11,38 @@ export interface HellLink
     elevator: Elevator | null
 }
 
+type HellNodeType = "FLOOR" | "ELEVATOR"
+
 export interface HellNode
 {
-    type: "FLOOR" | "ELEVATOR"
+    type: HellNodeType
+    entity: Entity
 }
 
-export class HellGraph
+export class HellGraph extends Entity
 {
     private levels = 5;
     private shafts = 4;
     public graph: Graph<HellNode, HellLink> = Ngraph();
 
     constructor()
+    {
+        super("HellGraph");
+        //
+        // for (let shaft = 0; shaft < this.shafts; shaft++)
+        // {
+        //     this.graph.addNode(getNodeName("FLOOR", level, shaft), {type: "FLOOR"})
+        //
+        //     if (shaft !== 0)
+        //     {
+        //         // Link floors on the same level together.
+        //         this.addLink(getNodeName("FLOOR", level, shaft), getNodeName("FLOOR", level, shaft - 1),
+        //             {type: "FLOOR", distance: 1})
+        //     }
+        // }
+    }
+
+    public initGraph()
     {
         for (let level = 0; level < this.levels; level++)
         {
@@ -35,8 +55,8 @@ export class HellGraph
                 {
                     case 0:
                     {
-                        this.graph.addNode(getNodeName("FLOOR", level, i));
-                        this.graph.addNode(getNodeName("FLOOR", level, i + 0.5));
+                        this.addFloor(level, i)
+                        this.addFloor(level, i + 0.5);
                         this.addLink(getNodeName("FLOOR", level, i), getNodeName("FLOOR", level, i + 0.5), {
                             type: "FLOOR",
                             distance: 0,
@@ -46,8 +66,8 @@ export class HellGraph
                     }
                     case 1:
                     {
-                        this.graph.addNode(getNodeName("FLOOR", level, i));
-                        this.graph.addNode(getNodeName("FLOOR", level, i + 1));
+                        this.addFloor(level, i);
+                        this.addFloor(level, i + 1);
                         this.addLink(getNodeName("FLOOR", level, i), getNodeName("FLOOR", level, i + 1), {
                             type: "FLOOR",
                             distance: 0,
@@ -57,9 +77,9 @@ export class HellGraph
                     }
                     case 2:
                     {
-                        this.graph.addNode(getNodeName("FLOOR", level, i));
-                        this.graph.addNode(getNodeName("FLOOR", level, i + 0.5));
-                        this.graph.addNode(getNodeName("FLOOR", level, i + 1));
+                        this.addFloor(level, i);
+                        this.addFloor(level, i + 0.5);
+                        this.addFloor(level, i + 1);
                         this.addLink(getNodeName("FLOOR", level, i), getNodeName("FLOOR", level, i + 0.5), {
                             type: "FLOOR",
                             distance: 0,
@@ -74,8 +94,8 @@ export class HellGraph
                     }
                     case 3:
                     {
-                        this.graph.addNode(getNodeName("FLOOR", level, i + 0.5));
-                        this.graph.addNode(getNodeName("FLOOR", level, i + 1));
+                        this.addFloor(level, i + 0.5);
+                        this.addFloor(level, i + 1);
                         this.addLink(getNodeName("FLOOR", level, i + 0.5), getNodeName("FLOOR", level, i + 1), {
                             type: "FLOOR",
                             distance: 0,
@@ -85,18 +105,6 @@ export class HellGraph
                     }
                 }
             }
-            //
-            // for (let shaft = 0; shaft < this.shafts; shaft++)
-            // {
-            //     this.graph.addNode(getNodeName("FLOOR", level, shaft), {type: "FLOOR"})
-            //
-            //     if (shaft !== 0)
-            //     {
-            //         // Link floors on the same level together.
-            //         this.addLink(getNodeName("FLOOR", level, shaft), getNodeName("FLOOR", level, shaft - 1),
-            //             {type: "FLOOR", distance: 1})
-            //     }
-            // }
         }
     }
 
@@ -110,20 +118,19 @@ export class HellGraph
             throw Error(`Elevator is invalid. Start: ${startLevel}, End: ${endLevel}, Shaft: ${shaft}`)
         }
 
+        const elevator = new Elevator(startLevel, endLevel, shaft);
+
         const start = getNodeName("ELEVATOR", startLevel, shaft)
         const end = getNodeName("ELEVATOR", endLevel, shaft)
 
-        this.graph.addNode(start, {type: "ELEVATOR"})
-        this.graph.addNode(end, {type: "ELEVATOR"})
+        this.addNode("ELEVATOR", startLevel, shaft, elevator)
+        this.addNode("ELEVATOR", endLevel, shaft, elevator)
 
         this.addLink(start, end, {type: "ELEVATOR", distance: 1, elevator: null})
-
-        const elevator = new Elevator(startLevel, endLevel, shaft);
 
         // Add links for the elevators and the start/end floors.
         this.addLink(start, getNodeName("FLOOR", startLevel, shaft), {type: "ALIGHT", distance: 15, elevator: elevator})
         this.addLink(end, getNodeName("FLOOR", endLevel, shaft), {type: "ALIGHT", distance: 15, elevator: elevator})
-
 
         // Spawn the elevator.
         scene.addEntity(elevator);
@@ -155,6 +162,22 @@ export class HellGraph
             links.push(link)
         }))
         console.log(links);
+    }
+
+    // private addElevator()
+    // {
+    //
+    // }
+
+    private addFloor(level: number, shaft: number)
+    {
+        const entity = this.getScene().addEntity(new FloorNode(shaft, level))
+        this.addNode("FLOOR", level, shaft, entity)
+    }
+
+    private addNode(type: HellNodeType, level: number, shaft: number, entity: Entity)
+    {
+        this.graph.addNode(getNodeName(type, level, shaft), {type: type, entity: entity})
     }
 
     private addLink(node1: NodeId, node2: NodeId, link: HellLink)
