@@ -1,7 +1,7 @@
-import {System} from "lagom-engine";
+import {MathUtil, Sprite, System} from "lagom-engine";
 import {HellGraph, HellGraphComponent, HellNode} from "../graph/Graph";
 import {GraphLocation, GraphTarget, Guy, Path} from "./Guy";
-import {Layers} from "../LD48";
+import {Layers, sprites} from "../LD48";
 import {Node} from "ngraph.graph";
 
 export class GuySpawner extends System
@@ -29,13 +29,16 @@ export class GuySpawner extends System
             })
 
             const start = potentialStarts[Math.floor(Math.random() * potentialStarts.length)]
-            const goal = potentialGoals[Math.floor(Math.random() * potentialGoals.length)]
+
+            const goalId = MathUtil.randomRange(0, potentialGoals.length);
+            const goal = potentialGoals[goalId];
 
             const guy = this.getScene().addEntity(
                 new Guy("guy", start.data.entity.transform.x, start.data.entity.transform.y, Layers.GUYS));
             guy.addComponent(new Path())
             guy.addComponent(new GraphLocation(start.id))
             guy.addComponent(new GraphTarget(goal.id))
+            guy.addComponent(new Sprite(sprites.textureFromPoints(goalId * 8, 48, 8, 8), {yOffset: -8}));
         })
     }
 }

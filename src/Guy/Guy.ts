@@ -100,7 +100,8 @@ export class GuyMover extends System
                 }
                 case "ALIGHT":
                 {
-                    const elevator = currentNode.data.type === "ELEVATOR" ? currentNode.data.entity : nextNode.data.entity;
+                    const elevator = currentNode.data.type === "ELEVATOR" ? currentNode.data.entity
+                                                                          : nextNode.data.entity;
 
                     const stopped = elevator.getComponent<StoppedElevator>(StoppedElevator);
 
