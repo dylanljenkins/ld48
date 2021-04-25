@@ -6,7 +6,7 @@ import {Node} from "ngraph.graph";
 
 export class GuySpawner extends System
 {
-    private timeout = 2000;
+    private timeout = 5000;
 
     types = () => [HellGraphComponent]
 
@@ -17,7 +17,7 @@ export class GuySpawner extends System
             this.timeout -= delta
             if (this.timeout > 0) return;
 
-            this.timeout = 2000;
+            this.timeout = 5000;
 
             const potentialStarts: Node<HellNode>[] = []
             const potentialGoals: Node<HellNode>[] = []

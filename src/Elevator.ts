@@ -1,6 +1,6 @@
-import {AnimatedSpriteController, AnimationEnd, Component, Entity, System, Timer} from "lagom-engine";
+import {AnimatedSpriteController, AnimationEnd, Component, Entity, Log, System, Timer} from "lagom-engine";
 import {Layers, sprites} from "./LD48";
-import {getNodeName} from "./graph/Graph";
+import {getNodeName, HellGraph} from "./graph/Graph";
 
 enum ElevatorStates
 {
@@ -81,7 +81,9 @@ export class ElevatorDestroyer extends System
         {
             if (entity.transform.position.y > 400)
             {
-                // TODO trigger something, cleanup the dead guys etc.
+                const elevator = entity.getComponent<ElevatorComp>(ElevatorComp)!;
+                const graph = this.getScene().getEntityWithName<HellGraph>("HellGraph")
+                graph!.destroyElevator(elevator.startLevel, elevator.endLevel, elevator.shaft)
                 entity.destroy();
             }
         });

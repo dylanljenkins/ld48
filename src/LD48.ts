@@ -26,15 +26,14 @@ import {
 import spritesheet from './Art/spritesheet.png';
 import roomsheet from './Art/chambers.png';
 import {
-    DoorStateSystem, ElevatorComp,
+    DoorStateSystem,
     ElevatorDestination,
     ElevatorDestroyer,
     ElevatorDropper,
     ElevatorFalling,
     ElevatorMover
 } from "./Elevator";
-import {GraphLocation, GraphTarget, Guy, GuyMover, Path, Pathfinder} from "./Guy/Guy";
-import {FloorNode} from "./graph/FloorNode";
+import {GuyDestroyer, GuyMover, Pathfinder} from "./Guy/Guy";
 import {GuySpawner} from "./Guy/GuySpawner";
 
 export const sprites = new SpriteSheet(spritesheet, 16, 16);
@@ -51,7 +50,7 @@ export enum Layers
     MOUSE
 }
 
-Log.logLevel = LogLevel.ALL;
+Log.logLevel = LogLevel.DEBUG;
 
 export const hellLayout = [
     [3, 1, 0],
@@ -106,6 +105,7 @@ class MainScene extends Scene
         this.addSystem(new GuySpawner());
         this.addSystem(new Pathfinder());
         this.addSystem(new GuyMover());
+        this.addSystem(new GuyDestroyer());
 
         this.addGUIEntity(new Diagnostics("white", 5, true));
         this.addEntity(new ElevatorNodeManager("Node Manager", 0, 0, Layers.ELEVATOR_NODE));
@@ -424,7 +424,6 @@ class ElevatorDropButton extends Entity
                 if (data.other.layer === Layers.MOUSE) {
                     this.destroy();
                     this.elevator.getComponent(ElevatorDestination)?.destroy();
-                    this.elevator.getComponent(ElevatorComp)?.destroy();
                     this.elevator.addComponent(new ElevatorFalling());
                     this.clickcallback()
                 }

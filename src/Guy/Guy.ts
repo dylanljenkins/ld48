@@ -1,4 +1,4 @@
-import {AnimatedSpriteController, AnimationEnd, Component, Entity, MathUtil, Scene, System} from "lagom-engine";
+import {AnimatedSpriteController, AnimationEnd, Component, Entity, Log, MathUtil, Scene, System} from "lagom-engine";
 import {sprites} from "../LD48";
 import {HellGraph, HellLink, HellNode} from "../graph/Graph";
 import {Link, Node} from "ngraph.graph";
@@ -35,9 +35,8 @@ export class GuyDestroyer extends System
     update(delta: number)
     {
         this.runOnEntities((guy: Guy) => {
-            if (guy.transform.position.y > 400)
+            if (guy.transform.position.y > 390)
             {
-                // TODO trigger something, cleanup the dead guys etc.
                 guy.destroy();
             }
         })
@@ -81,7 +80,14 @@ export class Pathfinder extends System
     {
         this.runOnEntities((entity: Entity, location: GraphLocation, target: GraphTarget, path: Path) =>
         {
-            path.path = this.graph!.pathfind(location.node, target.node);
+            try
+            {
+                path.path = this.graph!.pathfind(location.node, target.node);
+            }
+            catch (e)
+            {
+                Log.info("Cancelled pathfinding as node went missing.")
+            }
         })
     }
 }
@@ -103,6 +109,7 @@ export class GuyMover extends System
 
             const currentNode = path.path[path.path.length - 1]
             const nextNode = path.path[path.path.length - 2]
+
             if (!nextNode) return;
 
             const nextLink = currentNode.links.find((link) => link.toId === nextNode.id) as Link<HellLink>
