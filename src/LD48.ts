@@ -1,19 +1,27 @@
 import {getNodeName, HellGraph} from "./graph/Graph";
 import {
     CircleCollider,
-    CollisionMatrix, CollisionSystem,
+    CollisionMatrix,
+    CollisionSystem,
     Component,
-    Diagnostics, DiscreteCollisionSystem,
+    Diagnostics,
+    DiscreteCollisionSystem,
     Entity,
-    Game, GlobalSystem, LagomType,
+    FrameTriggerSystem,
+    Game,
+    GlobalSystem,
+    LagomType,
+    Log,
+    LogLevel,
     MathUtil,
-    Mouse, RectCollider,
+    Mouse,
     RenderCircle,
     Scene,
     Sprite,
     SpriteSheet,
-    TextDisp, Timer,    TimerSystem,
-    FrameTriggerSystem,
+    TextDisp,
+    Timer,
+    TimerSystem
 } from "lagom-engine";
 import spritesheet from './Art/spritesheet.png';
 import roomsheet from './Art/chambers.png';
@@ -26,6 +34,8 @@ import {
     ElevatorMover
 } from "./Elevator";
 import {GraphLocation, GraphTarget, Guy, GuyMover, Path, Pathfinder} from "./Guy/Guy";
+import {FloorNode} from "./graph/FloorNode";
+import {GuySpawner} from "./Guy/GuySpawner";
 
 export const sprites = new SpriteSheet(spritesheet, 16, 16);
 export const rooms = new SpriteSheet(roomsheet, 150, 64);
@@ -41,6 +51,8 @@ export enum Layers
     MOUSE
 }
 
+Log.logLevel = LogLevel.ALL;
+
 export const hellLayout = [
     [3, 1, 0],
     [1, -1, 2],
@@ -49,33 +61,12 @@ export const hellLayout = [
     [1, 0, 2]
 ];
 
-export const graph = new HellGraph();
-
 export class LD48 extends Game
 {
     constructor()
     {
         super({width: 640, height: 360, resolution: 2, backgroundColor: 0xd95763});
         this.setScene(new MainScene(this));
-    }
-}
-
-class FloorNode extends Entity
-{
-    level: number
-    shaft: number
-
-    constructor(shaft: number, level: number)
-    {
-        super(getNodeName("FLOOR", level, shaft), 120 + 150 * shaft, level * 70 + 50, Layers.ELEVATOR_DOOR);
-        this.level = level;
-        this.shaft = shaft;
-    }
-
-    onAdded()
-    {
-        super.onAdded();
-        this.addComponent(new Sprite(sprites.texture(3, 1, 16, 16)));
     }
 }
 
@@ -88,6 +79,9 @@ class MainScene extends Scene
         // console.log(result)
 
         super.onAdded();
+
+        const graph = this.addEntity(new HellGraph());
+        graph.initGraph();
 
         const collisionMatrix = new CollisionMatrix();
         collisionMatrix.addCollision(Layers.MOUSE, Layers.ELEVATOR_NODE);
@@ -109,31 +103,14 @@ class MainScene extends Scene
         this.addEntity(new MoneyBoard(50, 50, 1000));
         this.addEntity(new PowerUseBoard(600, 10, initialEnergyCost));
 
-        const guy = new Guy("guy", 100, 330, Layers.GUYS)
-        guy.addComponent(new GraphLocation(getNodeName("FLOOR", 4, 0)))
-        guy.addComponent(new GraphTarget(getNodeName("FLOOR", 0, 0.5)))
-        guy.addComponent(new Path())
-        this.addEntity(guy);
+        this.addSystem(new GuySpawner());
+        this.addSystem(new Pathfinder());
+        this.addSystem(new GuyMover());
 
         this.addGUIEntity(new Diagnostics("white", 5, true));
         this.addEntity(new ElevatorNodeManager("Node Manager", 0, 0, Layers.ELEVATOR_NODE));
 
         this.addBackground();
-        this.makeFloors();
-
-        this.addSystem(new Pathfinder())
-        this.addSystem(new GuyMover())
-    }
-
-    private makeFloors()
-    {
-        for (let level = 0; level < 5; level++)
-        {
-            for (let shaft = 0; shaft < 4; shaft++)
-            {
-                this.addEntity(new FloorNode(shaft, level));
-            }
-        }
     }
 
     private addBackground()
@@ -366,7 +343,6 @@ class ElevatorNode extends Entity
                                             radius: 5, layer: Layers.ELEVATOR_NODE}));
             buttonColl.onTriggerEnter.register((caller, data) => {
                 if (data.other.layer === Layers.MOUSE) {
-                    console.log("mouse click")
                     if (this.selected)
                     {
                         this.deselect();
@@ -382,9 +358,11 @@ class ElevatorNode extends Entity
                             const start = Math.min(this.level, firstNode.level);
                             const end = Math.max(this.level, firstNode.level);
                             if (this.parent != null) {
+                                const graph = this.scene.getEntityWithName<HellGraph>("HellGraph");
+                                if (!graph) return
+
                                 const elevator = graph.addElevator(start, end, this.shaft, this.parent.getScene());
                                 this.shaftNodes.forEach(node => node.destroy());
-                                console.log(firstNode)
 
                                 const dropButton = new ElevatorDropButton(this.shaft,start,elevator, this.deleteCallback);
                                 this.parent.addChild(dropButton);

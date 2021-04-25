@@ -1,5 +1,6 @@
 import {AnimatedSpriteController, AnimationEnd, Component, Entity, System, Timer} from "lagom-engine";
 import {Layers, sprites} from "./LD48";
+import {getNodeName} from "./graph/Graph";
 
 enum ElevatorStates
 {
@@ -40,6 +41,18 @@ export class ElevatorDestination extends Component
     {
         super();
     }
+}
+
+export class StoppedElevator extends Component
+{
+    public node: string;
+
+    public constructor(level: number, shaft: number)
+    {
+        super();
+        this.node = getNodeName("ELEVATOR", level, shaft)
+    }
+
 }
 
 export class ElevatorFalling extends Component
@@ -96,6 +109,7 @@ export class ElevatorMover extends System
             // We made it.
             if (moveDist === distanceToGoal)
             {
+                entity.addComponent(new StoppedElevator(destination.destinationLevel, elevator.shaft))
                 destination.destroy();
 
                 // TODO make this able to handle stops
@@ -117,6 +131,10 @@ export class ElevatorMover extends System
                     restartTimer.onTrigger.register((caller1, data1) =>
                     {
                         caller.parent.addComponent(data1);
+
+                        const stoppedInfo = caller.parent.getComponent<StoppedElevator>(StoppedElevator)
+                        if (stoppedInfo === null) return;
+                        caller.parent.removeComponent(stoppedInfo, true)
                     });
                 });
             }
