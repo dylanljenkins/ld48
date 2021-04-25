@@ -7,7 +7,7 @@ export class FloorNode extends Entity
 {
     constructor(readonly shaft: number, readonly level: number, left: boolean, readonly goal?: number)
     {
-        super(getNodeName(goal ? "GOAL" : "FLOOR", level, shaft),
+        super(getNodeName(goal !== undefined ? "GOAL" : "FLOOR", level, shaft),
             (left ? 90 : 110) + (150 * shaft), level * 70 + 50,
             Layers.ELEVATOR_DOOR);
         this.addComponent(new FloorNodeComp());

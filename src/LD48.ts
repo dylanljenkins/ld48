@@ -29,7 +29,7 @@ import {
     DoorStateSystem,
     DropMe,
     ElevatorDestination,
-    ElevatorDestroyer,
+    ElevatorDestroyer, ElevatorFollowSystem,
     ElevatorMover,
     EntityDropper
 } from "./Elevator";
@@ -45,8 +45,8 @@ export enum Layers
 {
     BACKGROUND,
     ELEVATOR_LINK,
-    GUYS,
     ELEVATOR,
+    GUYS,
     ELEVATOR_DOOR,
     ELEVATOR_NODE,
     SCORE,
@@ -97,6 +97,7 @@ class MainScene extends Scene
         this.addSystem(new ElevatorMover());
         this.addSystem(new EntityDropper());
         this.addSystem(new ElevatorDestroyer());
+        this.addSystem(new ElevatorFollowSystem());
 
         this.addSystem(new GuySpawner());
         this.addSystem(new Pathfinder());

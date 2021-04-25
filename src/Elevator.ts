@@ -1,4 +1,4 @@
-import {AnimatedSpriteController, AnimationEnd, Component, Entity, System, Timer} from "lagom-engine";
+import {AnimatedSpriteController, AnimationEnd, Component, Entity, Sprite, System, Timer} from "lagom-engine";
 import {Layers, sprites} from "./LD48";
 import {getNodeName, HellGraph} from "./graph/Graph";
 
@@ -8,11 +8,41 @@ enum ElevatorStates
     Open
 }
 
+class ElevatorFollower extends Component
+{
+    constructor(readonly elevator: Elevator)
+    {
+        super();
+    }
+}
+
+export class ElevatorFollowSystem extends System
+{
+    update(delta: number): void
+    {
+        this.runOnEntities((entity: Entity, follow: ElevatorFollower) => {
+            entity.transform.x = follow.elevator.transform.x;
+            entity.transform.y = follow.elevator.transform.y;
+        });
+    }
+
+    types = () => [ElevatorFollower];
+}
+
 export class Elevator extends Entity
 {
-    constructor(readonly startLevel: number, readonly endLevel: number, readonly shaft: number, readonly reverseStart = false)
+    private backing?: Entity;
+
+    constructor(readonly startLevel: number, readonly endLevel: number, readonly shaft: number,
+                readonly reverseStart = false)
     {
-        super("elevator", 100 + 150 * shaft, (reverseStart ? endLevel : startLevel) * 70 + 50, Layers.ELEVATOR);
+        super("elevator", 100 + 150 * shaft, (reverseStart ? endLevel : startLevel) * 70 + 50, Layers.ELEVATOR_DOOR);
+    }
+
+    onRemoved()
+    {
+        this.backing?.destroy();
+        super.onRemoved();
     }
 
     onAdded()
@@ -20,6 +50,12 @@ export class Elevator extends Entity
         super.onAdded();
 
         this.addComponent(new ElevatorComp(this.startLevel, this.endLevel, this.shaft));
+
+        this.backing = this.getScene().addEntity(
+            new Entity("elevatorbacking", this.transform.x, this.transform.y, Layers.ELEVATOR));
+        this.backing?.addComponent(new ElevatorFollower(this));
+        this.backing?.addComponent(new Sprite(sprites.texture(2, 3)));
+
 
         if (this.reverseStart)
         {

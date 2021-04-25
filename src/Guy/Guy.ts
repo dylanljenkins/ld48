@@ -1,4 +1,14 @@
-import {AnimatedSpriteController, AnimationEnd, Component, Entity, Log, MathUtil, Scene, System} from "lagom-engine";
+import {
+    AnimatedSpriteController,
+    AnimationEnd,
+    Component,
+    Entity,
+    Log,
+    MathUtil,
+    Scene,
+    System,
+    Timer
+} from "lagom-engine";
 import {sprites} from "../LD48";
 import {HellGraph, HellLink, HellNode} from "../graph/Graph";
 import {Link, Node} from "ngraph.graph";
@@ -105,6 +115,19 @@ export class GuyMover extends System
             // Found his destination.
             if (path.path.length === 1)
             {
+                const portal = entity?.parent?.getScene()?.getEntityWithName(guyLocation.node.toString());
+                if (portal !== undefined && portal !== null)
+                {
+                    const anim = portal.addComponent(new AnimatedSpriteController(0, [{
+                        textures: sprites.textures([[0, 6], [2, 6], [4, 6], [6, 6]], 32, 32),
+                        id: 0,
+                        config: {yOffset: -16, xOffset: -8, animationSpeed: 100}
+                    }]));
+                    portal.addComponent(new Timer(400, anim)).onTrigger.register((caller, data) => {
+                        data.destroy();
+                    });
+                }
+
                 entity?.parent?.getScene().getEntityWithName("scoredisp")?.getComponent<Score>(Score)?.add1();
                 entity.destroy()
             }
