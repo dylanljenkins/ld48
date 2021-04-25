@@ -4,6 +4,7 @@ import {HellGraph, HellLink, HellNode} from "../graph/Graph";
 import {Link, Node} from "ngraph.graph";
 import {StoppedElevator} from "../Elevator";
 import {getCenterCoords} from "../Util";
+import {Score} from "../Score";
 
 export class Guy extends Entity
 {
@@ -104,6 +105,7 @@ export class GuyMover extends System
             if (path.path.length === 1)
             {
                 // TODO score points!
+                entity?.parent?.getScene().getEntityWithName("scoredisp")?.getComponent<Score>(Score)?.add1();
                 entity.destroy()
             }
 

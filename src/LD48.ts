@@ -35,7 +35,7 @@ import {
 } from "./Elevator";
 import {GuyDestroyer, GuyMover, Pathfinder} from "./Guy/Guy";
 import {GuySpawner} from "./Guy/GuySpawner";
-import {ScoreDisplay, TimerDisplay} from "./Score";
+import {ScoreDisplay, ScoreUpdater, TimerDisplay} from "./Score";
 
 export const sprites = new SpriteSheet(spritesheet, 16, 16);
 export const rooms = new SpriteSheet(roomsheet, 150, 64);
@@ -107,6 +107,7 @@ class MainScene extends Scene
 
         this.addGUIEntity(new ScoreDisplay());
         this.addGUIEntity(new TimerDisplay());
+        this.addSystem(new ScoreUpdater());
 
         this.addBackground();
     }
