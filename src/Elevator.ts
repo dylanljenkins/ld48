@@ -91,7 +91,7 @@ export class ElevatorDestroyer extends System
 {
     update(delta: number): void
     {
-        this.runOnEntities((entity: Entity, falling: ElevatorFalling) =>
+        this.runOnEntities((entity: Entity, falling: DropMe) =>
         {
             if (!falling.hasBeenDeletedFromGraph)
             {
