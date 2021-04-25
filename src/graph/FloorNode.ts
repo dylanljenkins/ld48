@@ -15,7 +15,7 @@ export class FloorNode extends Entity
     onAdded()
     {
         super.onAdded();
-        this.addComponent(new Sprite(sprites.texture(3, 1, 16, 16)));
+        // this.addComponent(new Sprite(sprites.texture(3, 1, 16, 16)));
         if (this.goal !== undefined)
         {
             const textures = portals.textureSliceFromRow(this.goal % 4, 0, 3);
