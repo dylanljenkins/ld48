@@ -113,10 +113,12 @@ class MainScene extends Scene
         this.addEntity(new MoneyBoard(50, 50, 1000));
         this.addEntity(new PowerUseBoard(600, 10, initialEnergyCost));
 
-        const guy = new Guy("guy", 100, 330, Layers.GUYS)
-        guy.addComponent(new GraphLocation(getNodeName("FLOOR", 4, 0)))
-        guy.addComponent(new GraphTarget(getNodeName("FLOOR", 1, 2)))
+        const startNodeName = getNodeName("FLOOR", 4, 1)
+        const startNode = this.getEntityWithName<FloorNode>(startNodeName)
+        const guy = new Guy("guy", startNode!.transform.x, startNode!.transform.y, Layers.GUYS)
         guy.addComponent(new Path())
+        guy.addComponent(new GraphLocation(startNodeName))
+        guy.addComponent(new GraphTarget(getNodeName("FLOOR", 1, 2.5)))
         this.addEntity(guy);
 
         this.addGUIEntity(new Diagnostics("white", 5, true));

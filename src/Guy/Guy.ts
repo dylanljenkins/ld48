@@ -3,6 +3,7 @@ import {sprites} from "../LD48";
 import {HellGraph, HellLink, HellNode} from "../graph/Graph";
 import {Link, Node} from "ngraph.graph";
 import {StoppedElevator} from "../Elevator";
+import {getCenterCoords} from "../Util";
 
 export class Guy extends Entity
 {
@@ -29,7 +30,7 @@ export class Guy extends Entity
 
 export class GraphLocation extends Component
 {
-    constructor(public node: string, public state: "WAITING" | "ELEVATING" | "WALKING" = "WALKING")
+    constructor(public node: string, public onElevator = false)
     {
         super();
     }
@@ -79,6 +80,43 @@ export class GuyMover extends System
     {
         this.runOnEntities((entity: Entity, path: Path, guyLocation: GraphLocation, spr: AnimatedSpriteController) =>
         {
+            const moveTowards = (destination: Entity, speed: number) =>
+            {
+                const guy = getCenterCoords(entity)
+                const dest = getCenterCoords(destination)
+
+                const targetDir = MathUtil.pointDirection(guy.x, guy.y, dest.x, dest.y);
+                const targetDistance = MathUtil.pointDistance(guy.x, guy.y, dest.x, dest.y);
+
+                let toMove = speed * 100 * (delta / 1000);
+
+                if (toMove > targetDistance)
+                {
+                    toMove = targetDistance;
+                }
+
+                if (toMove > 0)
+                {
+                    spr.setAnimation(1, false);
+                }
+                else
+                {
+                    guyLocation.node = nextNode.id as string;
+
+                    if (nextNode.data.type === "ELEVATOR")
+                    {
+                        guyLocation.onElevator = true;
+                    }
+
+                    spr.setAnimation(0, true);
+                }
+
+                const movecomp = MathUtil.lengthDirXY(toMove, -targetDir);
+
+                entity.transform.x += movecomp.x;
+                entity.transform.y += movecomp.y;
+            }
+
             // Found his destination.
             if (path.path.length === 1)
             {
@@ -105,35 +143,33 @@ export class GuyMover extends System
 
                     const stopped = elevator.getComponent<StoppedElevator>(StoppedElevator);
 
-                    if (stopped)
+                    if (guyLocation.onElevator)
                     {
-                        // Getting onto the elevator.
-                        if (guyLocation.state === "WALKING")
+                        // TODO slightly random position in elevator based on var on guy.
+                        entity.transform.x = elevator.transform.x + 4
+                        entity.transform.y = elevator.transform.y + 4
+
+                        if (stopped && currentNode.id === stopped.node)
                         {
-                            // It has to be stopped at our stop.
-                            if (nextNode.id === stopped.node)
-                            {
-                                guyLocation.node = nextNode.id as string
-                                guyLocation.state = "WAITING";
-                                // TODO make the guy walk onto the elevator.
-                            }
-                        }
-                        // Getting off of the elevator.
-                        // TODO make the guy walk off the elevator.
-                        else if (guyLocation.state === "ELEVATING")
-                        {
+                            // Get off elevator.
                             guyLocation.node = nextNode.id as string;
-                            guyLocation.state = "WALKING";
+                            guyLocation.onElevator = false;
                         }
                     }
                     else
                     {
-                        // We're on it, and it's moving.
-                        if (guyLocation.state === "WAITING" || guyLocation.state === "ELEVATING")
+                        if (stopped && nextNode.id === stopped.node)
                         {
-                            guyLocation.state = "ELEVATING"
-                            entity.transform.x = elevator.transform.x + 5
-                            entity.transform.y = elevator.transform.y + 5
+                            // Get on elevator.
+                            const dest = nextNode.data.entity
+
+                            moveTowards(dest, 0.5)
+                        }
+                        else
+                        {
+                            // Dance around waiting.
+                            entity.transform.x += (Math.random() - 0.5) * 0.9
+                            entity.transform.y += (Math.random() - 0.5) * 0.9
                         }
                     }
                     break;
@@ -144,31 +180,7 @@ export class GuyMover extends System
 
                     if (destination !== null)
                     {
-                        const targetDir = MathUtil.pointDirection(entity.transform.x, entity.transform.y,
-                            destination.transform.x, destination.transform.y);
-                        const targetDistance = MathUtil.pointDistance(entity.transform.x, entity.transform.y,
-                            destination.transform.x, destination.transform.y);
-
-                        let toMove = this.speed * 100 * (delta / 1000);
-
-                        if (toMove > targetDistance)
-                        {
-                            toMove = targetDistance;
-                            guyLocation.node = nextNode.id as string;
-                        }
-
-                        if (toMove > 0)
-                        {
-                            spr.setAnimation(1, false);
-                        } else
-                        {
-                            spr.setAnimation(0, true);
-                        }
-
-                        const movecomp = MathUtil.lengthDirXY(toMove, -targetDir);
-
-                        entity.transform.x += movecomp.x;
-                        entity.transform.y += movecomp.y;
+                        moveTowards(destination, 1)
                     }
                 }
             }
