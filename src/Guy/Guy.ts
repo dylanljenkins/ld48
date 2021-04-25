@@ -30,7 +30,7 @@ export class Guy extends Entity
 
 export class GraphLocation extends Component
 {
-    constructor(public node: string, public onElevator = false)
+    constructor(public node: string | number, public onElevator = false)
     {
         super();
     }
@@ -38,7 +38,7 @@ export class GraphLocation extends Component
 
 export class GraphTarget extends Component
 {
-    constructor(public node: string)
+    constructor(public node: string | number)
     {
         super();
     }

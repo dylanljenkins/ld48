@@ -27,6 +27,8 @@ import spritesheet from './Art/spritesheet.png';
 import roomsheet from './Art/chambers.png';
 import {DoorStateSystem, ElevatorDestroyer, ElevatorDropper, ElevatorMover} from "./Elevator";
 import {GraphLocation, GraphTarget, Guy, GuyMover, Path, Pathfinder} from "./Guy/Guy";
+import {FloorNode} from "./graph/FloorNode";
+import {GuySpawner} from "./Guy/GuySpawner";
 
 export const sprites = new SpriteSheet(spritesheet, 16, 16);
 export const rooms = new SpriteSheet(roomsheet, 150, 64);
@@ -42,7 +44,7 @@ export enum Layers
     MOUSE
 }
 
-Log.logLevel = LogLevel.ERROR;
+Log.logLevel = LogLevel.ALL;
 
 export const hellLayout = [
     [3, 1, 0],
@@ -58,25 +60,6 @@ export class LD48 extends Game
     {
         super({width: 640, height: 360, resolution: 2, backgroundColor: 0xd95763});
         this.setScene(new MainScene(this));
-    }
-}
-
-export class FloorNode extends Entity
-{
-    level: number
-    shaft: number
-
-    constructor(shaft: number, level: number)
-    {
-        super(getNodeName("FLOOR", level, shaft), 120 + 150 * shaft, level * 70 + 50, Layers.ELEVATOR_DOOR);
-        this.level = level;
-        this.shaft = shaft;
-    }
-
-    onAdded()
-    {
-        super.onAdded();
-        this.addComponent(new Sprite(sprites.texture(3, 1, 16, 16)));
     }
 }
 
@@ -113,6 +96,10 @@ class MainScene extends Scene
         this.addEntity(new MoneyBoard(50, 50, 1000));
         this.addEntity(new PowerUseBoard(600, 10, initialEnergyCost));
 
+        // this.addSystem(new GuySpawner());
+        // this.addSystem(new Pathfinder());
+        // this.addSystem(new GuyMover());
+
         const startNodeName = getNodeName("FLOOR", 4, 1)
         const startNode = this.getEntityWithName<FloorNode>(startNodeName)
         const guy = new Guy("guy", startNode!.transform.x, startNode!.transform.y, Layers.GUYS)
@@ -121,13 +108,14 @@ class MainScene extends Scene
         guy.addComponent(new GraphTarget(getNodeName("FLOOR", 1, 2.5)))
         this.addEntity(guy);
 
+        // TODO PETER move before the guy is added and it stops working.
+        this.addSystem(new Pathfinder())
+        this.addSystem(new GuyMover())
+
         this.addGUIEntity(new Diagnostics("white", 5, true));
         this.addEntity(new ElevatorNodeManager("Node Manager", 0, 0, Layers.ELEVATOR_NODE));
 
         this.addBackground();
-
-        this.addSystem(new Pathfinder())
-        this.addSystem(new GuyMover())
     }
 
     private addBackground()

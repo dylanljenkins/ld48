@@ -1,8 +1,9 @@
 import Ngraph, {Graph, Link, Node, NodeId} from "ngraph.graph";
 import {aStar, PathFinderOptions} from "ngraph.path";
-import {Entity, Scene} from "lagom-engine";
+import {Component, Entity, Scene} from "lagom-engine";
 import {Elevator} from "../Elevator";
-import {FloorNode, hellLayout} from "../LD48";
+import {hellLayout} from "../LD48";
+import {FloorNode} from "./FloorNode";
 
 export interface HellLink
 {
@@ -18,6 +19,10 @@ export interface HellNode
     entity: Entity
 }
 
+export class HellGraphComponent extends Component
+{
+}
+
 export class HellGraph extends Entity
 {
     private levels = 5;
@@ -27,6 +32,7 @@ export class HellGraph extends Entity
     constructor()
     {
         super("HellGraph");
+        this.addComponent(new HellGraphComponent());
     }
 
     public initGraph()
@@ -100,7 +106,7 @@ export class HellGraph extends Entity
         scene.addEntity(elevator);
     }
 
-    public pathfind(startNode: string, endNode: string): Node<HellNode>[]
+    public pathfind(startNode: string | number, endNode: string | number): Node<HellNode>[]
     {
         const options: PathFinderOptions<HellNode, HellLink> = {
             distance: (from, to, link) => link.data.distance
