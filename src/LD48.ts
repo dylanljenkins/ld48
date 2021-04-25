@@ -30,8 +30,8 @@ import {
     DoorStateSystem,
     ElevatorDestination,
     ElevatorDestroyer,
-    ElevatorDropper,
-    ElevatorFalling,
+    EntityDropper,
+    DropMe,
     ElevatorMover
 } from "./Elevator";
 import {GuyDestroyer, GuyMover, Pathfinder} from "./Guy/Guy";
@@ -97,7 +97,7 @@ class MainScene extends Scene
 
         this.addSystem(new DoorStateSystem());
         this.addSystem(new ElevatorMover());
-        this.addSystem(new ElevatorDropper());
+        this.addSystem(new EntityDropper());
         this.addSystem(new ElevatorDestroyer());
 
         this.addEntity(new GameManager(initialBudget, initialEnergyCost));
@@ -426,7 +426,7 @@ class ElevatorDropButton extends Entity
                 if (data.other.layer === Layers.MOUSE) {
                     this.destroy();
                     this.elevator.getComponent(ElevatorDestination)?.destroy();
-                    this.elevator.addComponent(new ElevatorFalling());
+                    this.elevator.addComponent(new DropMe(160));
                     this.clickcallback()
                 }
             });

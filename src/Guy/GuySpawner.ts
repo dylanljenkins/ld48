@@ -1,8 +1,9 @@
-import {MathUtil, Sprite, System} from "lagom-engine";
+import {AnimatedSpriteController, AnimationEnd, Entity, MathUtil, Sprite, System, Timer} from "lagom-engine";
 import {HellGraph, HellGraphComponent, HellNode} from "../graph/Graph";
-import {GraphLocation, GraphTarget, Guy, Path} from "./Guy";
 import {Layers, sprites} from "../LD48";
 import {Node} from "ngraph.graph";
+import {DropMe} from "../Elevator";
+import {GraphLocation, GraphTarget, Guy, Path} from "./Guy";
 
 export class GuySpawner extends System
 {
@@ -34,12 +35,57 @@ export class GuySpawner extends System
             const goalId = MathUtil.randomRange(0, 4);
             const goal = potentialGoals[goalId];
 
-            const guy = this.getScene().addEntity(
-                new Guy("guy", start.data.entity.transform.x, start.data.entity.transform.y, Layers.GUYS));
-            guy.addComponent(new Path())
-            guy.addComponent(new GraphLocation(start.id))
-            guy.addComponent(new GraphTarget(goal.id))
-            guy.addComponent(new Sprite(sprites.textureFromPoints(goalId * 8, 48, 8, 8), {yOffset: -8}));
+            const guyPortal = this.getScene().addEntity(
+                new Entity("guyportal", start.data.entity.transform.x - 4, start.data.entity.transform.y - 16, Layers.GUYS));
+            const sprCon = guyPortal.addComponent(new AnimatedSpriteController(0, [
+                {
+                    id: 0,
+                    textures: sprites.textures([[2, 2], [3, 2], [4, 2]], 16, 16),
+                    config: {
+                        animationEndAction: AnimationEnd.LOOP,
+                        animationSpeed: 200
+                    }
+                }]));
+
+            guyPortal.addComponent(new Timer(600, sprCon, false)).onTrigger.register((caller, data) => {
+                data.destroy();
+                caller.parent.addComponent(new AnimatedSpriteController(0, [{
+                    id: 0,
+                    textures: sprites.textures([[5, 2], [6, 2], [7, 2]], 16, 16),
+                    config: {
+                        animationEndAction: AnimationEnd.LOOP,
+                        animationSpeed: 200
+                    }
+                }]));
+            })
+
+            guyPortal.addComponent(new Timer(800, null)).onTrigger.register(caller => {
+                const guycoming = caller.getScene().addEntity(
+                    new Entity("guycomingin", start.data.entity.transform.x, start.data.entity.transform.y - 10))
+                guycoming.addComponent(new Sprite(sprites.texture(0, 0, 8, 8)));
+                guycoming.addComponent(new DropMe(20));
+                guycoming.addComponent(new Timer(500, guyPortal)).onTrigger.register((caller1, data) => {
+                    const guy = caller1.getScene().addEntity(
+                        new Guy("guy", start.data.entity.transform.x, start.data.entity.transform.y, Layers.GUYS));
+                    guy.addComponent(new Path())
+                    guy.addComponent(new GraphLocation(start.id))
+                    guy.addComponent(new GraphTarget(goal.id))
+                    guy.addComponent(new Sprite(sprites.textureFromPoints(goalId * 8, 48, 8, 8), {yOffset: -8}));
+                    data.getComponent(AnimatedSpriteController)?.destroy();
+                    data.addComponent(new AnimatedSpriteController(0, [
+                        {
+                            id: 0,
+                            textures: sprites.textures([[4, 2], [3, 2], [2, 2]], 16, 16),
+                            config: {
+                                animationEndAction: AnimationEnd.LOOP,
+                                animationSpeed: 200
+                            }
+                        }
+                    ]))
+                    data.addComponent(new Timer(600, null)).onTrigger.register(caller2 => caller2.parent.destroy());
+                    caller1.parent.destroy();
+                })
+            })
         })
     }
 }
