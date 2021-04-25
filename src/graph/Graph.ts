@@ -81,7 +81,7 @@ export class HellGraph extends Entity
         }
     }
 
-    public addElevator(startLevel: number, endLevel: number, shaft: number, scene: Scene)
+    public addElevator(startLevel: number, endLevel: number, shaft: number, scene: Scene): Elevator
     {
         if (startLevel >= this.levels || startLevel < 0 ||
             endLevel >= this.levels || endLevel < 0 ||
@@ -103,7 +103,7 @@ export class HellGraph extends Entity
         this.addLink(end, getNodeName("FLOOR", endLevel, shaft), {type: "ALIGHT", distance: 15})
 
         // Spawn the elevator.
-        return scene.addEntity(new Elevator(startLevel, endLevel, shaft));
+        return scene.addEntity(elevator);
     }
 
     public pathfind(startNode: string | number, endNode: string | number): Node<HellNode>[]
