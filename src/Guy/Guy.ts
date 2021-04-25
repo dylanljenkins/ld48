@@ -38,6 +38,7 @@ export class GuyDestroyer extends System
         this.runOnEntities((guy: Guy) => {
             if (guy.transform.position.y > 390)
             {
+                guy?.parent?.getScene().getEntityWithName("scoredisp")?.getComponent<Score>(Score)?.sub1();
                 guy.destroy();
             }
         })
@@ -104,7 +105,6 @@ export class GuyMover extends System
             // Found his destination.
             if (path.path.length === 1)
             {
-                // TODO score points!
                 entity?.parent?.getScene().getEntityWithName("scoredisp")?.getComponent<Score>(Score)?.add1();
                 entity.destroy()
             }
