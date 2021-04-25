@@ -72,51 +72,12 @@ export class Pathfinder extends System
 
 export class GuyMover extends System
 {
-    readonly speed = 1;
-
     types = () => [Path, GraphLocation, AnimatedSpriteController];
 
     update(delta: number)
     {
         this.runOnEntities((entity: Entity, path: Path, guyLocation: GraphLocation, spr: AnimatedSpriteController) =>
         {
-            const moveTowards = (destination: Entity, speed: number) =>
-            {
-                const guy = getCenterCoords(entity)
-                const dest = getCenterCoords(destination)
-
-                const targetDir = MathUtil.pointDirection(guy.x, guy.y, dest.x, dest.y);
-                const targetDistance = MathUtil.pointDistance(guy.x, guy.y, dest.x, dest.y);
-
-                let toMove = speed * 100 * (delta / 1000);
-
-                if (toMove > targetDistance)
-                {
-                    toMove = targetDistance;
-                }
-
-                if (toMove > 0)
-                {
-                    spr.setAnimation(1, false);
-                }
-                else
-                {
-                    guyLocation.node = nextNode.id as string;
-
-                    if (nextNode.data.type === "ELEVATOR")
-                    {
-                        guyLocation.onElevator = true;
-                    }
-
-                    spr.setAnimation(0, true);
-                }
-
-                const movecomp = MathUtil.lengthDirXY(toMove, -targetDir);
-
-                entity.transform.x += movecomp.x;
-                entity.transform.y += movecomp.y;
-            }
-
             // Found his destination.
             if (path.path.length === 1)
             {
@@ -161,9 +122,7 @@ export class GuyMover extends System
                         if (stopped && nextNode.id === stopped.node)
                         {
                             // Get on elevator.
-                            const dest = nextNode.data.entity
-
-                            moveTowards(dest, 0.5)
+                            GuyMover.moveTowards(entity, nextNode, 0.5, delta, spr, guyLocation);
                         }
                         else
                         {
@@ -176,14 +135,49 @@ export class GuyMover extends System
                 }
                 case "FLOOR":
                 {
-                    const destination = nextNode.data.entity
-
-                    if (destination !== null)
-                    {
-                        moveTowards(destination, 1)
-                    }
+                    GuyMover.moveTowards(entity, nextNode, 1, delta, spr, guyLocation)
                 }
             }
         })
+    }
+
+    private static moveTowards(source: Entity, destination: Node<HellNode>,
+                               speed: number, delta: number,
+                               sprite: AnimatedSpriteController,
+                               location: GraphLocation)
+    {
+        const guy = getCenterCoords(source)
+        const dest = getCenterCoords(destination.data.entity)
+
+        const targetDir = MathUtil.pointDirection(guy.x, guy.y, dest.x, dest.y);
+        const targetDistance = MathUtil.pointDistance(guy.x, guy.y, dest.x, dest.y);
+
+        let toMove = speed * 100 * (delta / 1000);
+
+        if (toMove > targetDistance)
+        {
+            toMove = targetDistance;
+        }
+
+        if (toMove > 0)
+        {
+            sprite.setAnimation(1, false);
+        }
+        else
+        {
+            location.node = destination.id as string;
+
+            if (destination.data.type === "ELEVATOR")
+            {
+                location.onElevator = true;
+            }
+
+            sprite.setAnimation(0, true);
+        }
+
+        const movecomp = MathUtil.lengthDirXY(toMove, -targetDir);
+
+        source.transform.x += movecomp.x;
+        source.transform.y += movecomp.y;
     }
 }
