@@ -4,7 +4,6 @@ import {
     CollisionMatrix,
     CollisionSystem,
     Component,
-    Diagnostics,
     DiscreteCollisionSystem,
     Entity,
     FrameTriggerSystem,
@@ -15,7 +14,8 @@ import {
     LogLevel,
     MathUtil,
     Mouse,
-    RenderCircle, RenderRect,
+    RenderCircle,
+    RenderRect,
     Scene,
     Sprite,
     SpriteSheet,
@@ -29,13 +29,14 @@ import {
     DoorStateSystem,
     DropMe,
     ElevatorDestination,
-    ElevatorDestroyer, ElevatorFollowSystem,
+    ElevatorDestroyer,
+    ElevatorFollowSystem,
     ElevatorMover,
     EntityDropper
 } from "./Elevator";
 import {GuyDestroyer, GuyMover, Pathfinder} from "./Guy/Guy";
 import {GuySpawner} from "./Guy/GuySpawner";
-import {ScoreDisplay, ScoreUpdater, TimerDisplay} from "./Score";
+import {ScoreDisplay, ScoreToastRemover, ScoreUpdater, TimerDisplay} from "./Score";
 
 export const sprites = new SpriteSheet(spritesheet, 16, 16);
 export const rooms = new SpriteSheet(roomsheet, 150, 64);
@@ -104,12 +105,12 @@ class MainScene extends Scene
         this.addSystem(new GuyMover());
         this.addSystem(new GuyDestroyer());
 
-        this.addGUIEntity(new Diagnostics("white", 5, true));
         this.addEntity(new ElevatorNodeManager("Node Manager", 0, 0, Layers.ELEVATOR_LINK));
 
         this.addGUIEntity(new ScoreDisplay());
         this.addGUIEntity(new TimerDisplay());
         this.addSystem(new ScoreUpdater());
+        this.addSystem(new ScoreToastRemover());
 
         this.addBackground();
     }
@@ -282,16 +283,18 @@ class ElevatorNode extends Entity
                                 const elevator = graph.addElevator(start, end, this.shaft, this.parent.getScene(),
                                     this.level < firstNode.level);
                                 this.shaftNodes.forEach(node => node.destroy());
-                                const elevatorLinks:Entity[] = []
+                                const elevatorLinks: Entity[] = []
                                 elevatorLinks.push(this.parent.addChild(new ElevatorLinkTop(this.shaft, start)));
-                                elevatorLinks.push(this.parent.addChild(new ElevatorLinkMiddle(this.shaft, start, end)));
+                                elevatorLinks.push(
+                                    this.parent.addChild(new ElevatorLinkMiddle(this.shaft, start, end)));
                                 elevatorLinks.push(this.parent.addChild(new ElevatorLinkBottom(this.shaft, end)));
 
                                 const callbackWrapper = () => {
                                     this.deleteCallback();
                                     elevatorLinks.forEach(link => this.parent?.removeChild(link));
                                 }
-                                this.parent.addChild(new ElevatorDropButton(this.shaft,start,elevator, callbackWrapper));
+                                this.parent.addChild(
+                                    new ElevatorDropButton(this.shaft, start, elevator, callbackWrapper));
                             }
                         }
                         else if (selectedNodes.length == 0)
@@ -391,10 +394,13 @@ class ElevatorLinkBottom extends Entity
     }
 }
 
-class ElevatorLinkMiddle extends Entity{
+class ElevatorLinkMiddle extends Entity
+{
     start: number;
     end: number;
-    constructor(shaft: number, start: number, end: number) {
+
+    constructor(shaft: number, start: number, end: number)
+    {
         super(getNodeName("ELEVATOR_LINK", start, shaft), 100 + 150 * shaft, start * 70 + 50, -1);
         this.start = start
         this.end = end;
@@ -407,13 +413,17 @@ class ElevatorLinkMiddle extends Entity{
         const diffy = (this.end - this.start) * 70;
         let currentOffsety = 0;
         console.log(diffy)
-        while (currentOffsety < diffy - spriteHeight) {
-            if (diffy - (currentOffsety + spriteHeight) < (spriteHeight/2)) {
-                currentOffsety += (spriteHeight/4)
-            } else {
+        while (currentOffsety < diffy - spriteHeight)
+        {
+            if (diffy - (currentOffsety + spriteHeight) < (spriteHeight / 2))
+            {
+                currentOffsety += (spriteHeight / 4)
+            }
+            else
+            {
                 currentOffsety += spriteHeight;
             }
-            this.addComponent(new Sprite(sprites.texture(7, 1, 16, 16), {yOffset:currentOffsety}))
+            this.addComponent(new Sprite(sprites.texture(7, 1, 16, 16), {yOffset: currentOffsety}))
         }
 
 
