@@ -110,7 +110,11 @@ export class GuyMover extends System
             const currentNode = path.path[path.path.length - 1]
             const nextNode = path.path[path.path.length - 2]
 
-            if (!nextNode) return;
+            if (!nextNode)
+            {
+                spr.setAnimation(0, true)
+                return;
+            }
 
             const nextLink = currentNode.links.find((link) => link.toId === nextNode.id) as Link<HellLink>
 
