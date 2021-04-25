@@ -15,7 +15,7 @@ import {
     LogLevel,
     MathUtil,
     Mouse,
-    RenderCircle,
+    RenderCircle, RenderRect,
     Scene,
     Sprite,
     SpriteSheet,
@@ -341,7 +341,9 @@ class ElevatorDropButton extends Entity
     onAdded()
     {
         super.onAdded();
-        this.addComponent(new RenderCircle(0, 0, 5, 0xff0000, 0x000000));
+
+        this.addComponent(new RenderRect(-5, -1, 10, 1, 0xab0000, 0xab0000))
+        this.addComponent(new RenderCircle(0, 0, 5, null, 0xab0000));
 
         const sys = this.getScene().getGlobalSystem<CollisionSystem>(CollisionSystem);
         if (sys !== null)
@@ -353,7 +355,7 @@ class ElevatorDropButton extends Entity
                 {
                     this.destroy();
                     this.elevator.getComponent(ElevatorDestination)?.destroy();
-                    this.elevator.addComponent(new DropMe(160));
+                    this.elevator.addComponent(new DropMe(80));
                     this.clickcallback()
                 }
             });

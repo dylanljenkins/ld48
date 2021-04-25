@@ -12,7 +12,7 @@ import {
 import {sprites} from "../LD48";
 import {HellGraph, HellLink, HellNode} from "../graph/Graph";
 import {Link, Node} from "ngraph.graph";
-import {StoppedElevator} from "../Elevator";
+import {DropMe, StoppedElevator} from "../Elevator";
 import {getCenterCoords} from "../Util";
 import {Score} from "../Score";
 
@@ -57,6 +57,9 @@ export class GuyDestroyer extends System
 
 export class GraphLocation extends Component
 {
+    public elevatorX = ((Math.random() - 0.5) * 8) + 4
+    public elevatorY = ((Math.random() - 0.5) * 8) + 4
+
     constructor(public node: string | number, public onElevator = false)
     {
         super();
@@ -137,6 +140,13 @@ export class GuyMover extends System
 
             if (!nextNode)
             {
+                if (guyLocation.onElevator)
+                {
+                    // We lost our path and we were on an elevator.
+                    // This is the way.
+                    entity.addComponent(new DropMe(50))
+                }
+
                 spr.setAnimation(0, true)
                 return;
             }
@@ -147,8 +157,8 @@ export class GuyMover extends System
             if (!nextLink)
             {
                 const elevator = currentNode.data.entity
-                entity.transform.x = elevator.transform.x + 4
-                entity.transform.y = elevator.transform.y + 4
+                entity.transform.x = elevator.transform.x + guyLocation.elevatorX
+                entity.transform.y = elevator.transform.y + guyLocation.elevatorY
                 return;
             }
 
@@ -168,9 +178,9 @@ export class GuyMover extends System
 
                     if (guyLocation.onElevator)
                     {
-                        // TODO slightly random position in elevator based on var on guy.
-                        entity.transform.x = elevator.transform.x + 4
-                        entity.transform.y = elevator.transform.y + 4
+                        // Slightly random position in elevator based on var on guy.
+                        entity.transform.x = elevator.transform.x + guyLocation.elevatorX
+                        entity.transform.y = elevator.transform.y + guyLocation.elevatorY
 
                         if (stopped && currentNode.id === stopped.node)
                         {
@@ -189,8 +199,8 @@ export class GuyMover extends System
                         else
                         {
                             // Dance around waiting.
-                            entity.transform.x += (Math.random() - 0.5) * 0.9
-                            entity.transform.y += (Math.random() - 0.5) * 0.9
+                            entity.transform.x += (Math.random() - 0.5) * 0.2
+                            entity.transform.y += (Math.random() - 0.5) * 0.2
                         }
                     }
                     break;
