@@ -67,7 +67,7 @@ export class DropMe extends Component
 {
     hasBeenDeletedFromGraph = false;
 
-    constructor(readonly  speed: number)
+    constructor(public speed: number, readonly accelerate = true)
     {
         super();
     }
@@ -81,6 +81,7 @@ export class EntityDropper extends System
     {
         this.runOnEntities((entity: Entity, dropMe: DropMe) =>
         {
+            if (dropMe.accelerate) dropMe.speed *= 1.02
             entity.transform.position.y += dropMe.speed * (delta / 1000)
         });
     }

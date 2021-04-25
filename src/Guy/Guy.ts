@@ -2,7 +2,7 @@ import {AnimatedSpriteController, AnimationEnd, Component, Entity, Log, MathUtil
 import {sprites} from "../LD48";
 import {HellGraph, HellLink, HellNode} from "../graph/Graph";
 import {Link, Node} from "ngraph.graph";
-import {StoppedElevator} from "../Elevator";
+import {DropMe, StoppedElevator} from "../Elevator";
 import {getCenterCoords} from "../Util";
 import {Score} from "../Score";
 
@@ -117,6 +117,13 @@ export class GuyMover extends System
 
             if (!nextNode)
             {
+                if (guyLocation.onElevator)
+                {
+                    // We lost our path and we were on an elevator.
+                    // This is the way.
+                    entity.addComponent(new DropMe(50))
+                }
+
                 spr.setAnimation(0, true)
                 return;
             }

@@ -352,7 +352,7 @@ class ElevatorDropButton extends Entity
                 {
                     this.destroy();
                     this.elevator.getComponent(ElevatorDestination)?.destroy();
-                    this.elevator.addComponent(new DropMe(160));
+                    this.elevator.addComponent(new DropMe(80));
                     this.clickcallback()
                 }
             });
