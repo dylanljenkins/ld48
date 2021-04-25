@@ -197,6 +197,7 @@ export class GuyMover extends System
                 dest.y -= 4;
                 break;
             case "FLOOR":
+                dest.y += 10;
                 break;
         }
 
