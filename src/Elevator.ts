@@ -10,9 +10,9 @@ enum ElevatorStates
 
 export class Elevator extends Entity
 {
-    constructor(readonly startLevel: number, readonly endLevel: number, readonly shaft: number)
+    constructor(readonly startLevel: number, readonly endLevel: number, readonly shaft: number, readonly reverseStart = false)
     {
-        super("elevator", 100 + 150 * shaft, startLevel * 70 + 50, Layers.ELEVATOR);
+        super("elevator", 100 + 150 * shaft, (reverseStart ? endLevel : startLevel) * 70 + 50, Layers.ELEVATOR);
     }
 
     onAdded()
@@ -20,9 +20,19 @@ export class Elevator extends Entity
         super.onAdded();
 
         this.addComponent(new ElevatorComp(this.startLevel, this.endLevel, this.shaft));
-        this.addComponent(new ElevatorDestination(this.endLevel, "DOWN"));
 
-        this.addComponent(new AnimatedSpriteController(ElevatorStates.Closed, [
+        this.addComponent(new SwapDoorState());
+
+        if (this.reverseStart)
+        {
+            this.addComponent(new ElevatorDestination(this.endLevel, "DOWN"));
+        }
+        else
+        {
+            this.addComponent(new ElevatorDestination(this.startLevel, "UP"));
+        }
+
+        this.addComponent(new AnimatedSpriteController(ElevatorStates.Open, [
             {
                 id: ElevatorStates.Closed, config: {animationEndAction: AnimationEnd.STOP, animationSpeed: 80},
                 textures: sprites.textures([[1, 2], [0, 2], [4, 1]])

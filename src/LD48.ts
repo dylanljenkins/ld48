@@ -363,7 +363,7 @@ class ElevatorNode extends Entity
                                 const graph = this.scene.getEntityWithName<HellGraph>("HellGraph");
                                 if (!graph) return
 
-                                const elevator = graph.addElevator(start, end, this.shaft, this.parent.getScene());
+                                const elevator = graph.addElevator(start, end, this.shaft, this.parent.getScene(), this.level < firstNode.level);
                                 this.shaftNodes.forEach(node => node.destroy());
 
                                 const dropButton = new ElevatorDropButton(this.shaft,start,elevator, this.deleteCallback);
