@@ -28,6 +28,22 @@ export class Guy extends Entity
     }
 }
 
+export class GuyDestroyer extends System
+{
+    types = () => [Path]
+
+    update(delta: number)
+    {
+        this.runOnEntities((guy: Guy) => {
+            if (guy.transform.position.y > 400)
+            {
+                // TODO trigger something, cleanup the dead guys etc.
+                guy.destroy();
+            }
+        })
+    }
+}
+
 export class GraphLocation extends Component
 {
     constructor(public node: string | number, public onElevator = false)
