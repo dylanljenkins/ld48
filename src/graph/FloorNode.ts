@@ -5,9 +5,10 @@ import {MathUtil} from "lagom-engine/dist";
 
 export class FloorNode extends Entity
 {
-    constructor(readonly shaft: number, readonly level: number, readonly goal?: number)
+    constructor(readonly shaft: number, readonly level: number, left: boolean, readonly goal?: number)
     {
-        super(getNodeName(goal ? "GOAL" : "FLOOR", level, shaft), 120 + 150 * shaft, level * 70 + 50,
+        super(getNodeName(goal ? "GOAL" : "FLOOR", level, shaft),
+            (left ? 90 : 110) + (150 * shaft), level * 70 + 50,
             Layers.ELEVATOR_DOOR);
         this.addComponent(new FloorNodeComp());
     }
@@ -30,7 +31,7 @@ export class FloorNode extends Entity
                     textures: textures,
                     config: {
                         animationEndAction: AnimationEnd.LOOP, animationSpeed: 150 + MathUtil.randomRange(-20, 20),
-                        yOffset: -16, xOffset: -16
+                        yOffset: -16, xOffset: -8
                     },
                     id: 0
                 }]
