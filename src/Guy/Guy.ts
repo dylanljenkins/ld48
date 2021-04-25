@@ -116,7 +116,16 @@ export class GuyMover extends System
                 return;
             }
 
-            const nextLink = currentNode.links.find((link) => link.toId === nextNode.id) as Link<HellLink>
+            const nextLink = currentNode?.links?.find((link) => link.toId === nextNode.id) as Link<HellLink> | undefined
+
+            // For this to be the case, they are falling with an elevator.
+            if (!nextLink)
+            {
+                const elevator = currentNode.data.entity
+                entity.transform.x = elevator.transform.x + 4
+                entity.transform.y = elevator.transform.y + 4
+                return;
+            }
 
             switch (nextLink.data.type)
             {

@@ -21,8 +21,6 @@ export class Elevator extends Entity
 
         this.addComponent(new ElevatorComp(this.startLevel, this.endLevel, this.shaft));
 
-        this.addComponent(new SwapDoorState());
-
         if (this.reverseStart)
         {
             this.addComponent(new ElevatorDestination(this.endLevel, "DOWN"));
@@ -32,7 +30,7 @@ export class Elevator extends Entity
             this.addComponent(new ElevatorDestination(this.startLevel, "UP"));
         }
 
-        this.addComponent(new AnimatedSpriteController(ElevatorStates.Open, [
+        this.addComponent(new AnimatedSpriteController(ElevatorStates.Closed, [
             {
                 id: ElevatorStates.Closed, config: {animationEndAction: AnimationEnd.STOP, animationSpeed: 80},
                 textures: sprites.textures([[1, 2], [0, 2], [4, 1]])
@@ -67,6 +65,7 @@ export class StoppedElevator extends Component
 
 export class ElevatorFalling extends Component
 {
+    hasBeenDeletedFromGraph = false;
 }
 
 export class ElevatorDropper extends System
@@ -87,13 +86,18 @@ export class ElevatorDestroyer extends System
 {
     update(delta: number): void
     {
-        this.runOnEntities((entity: Entity) =>
+        this.runOnEntities((entity: Entity, falling: ElevatorFalling) =>
         {
-            if (entity.transform.position.y > 400)
+            if (!falling.hasBeenDeletedFromGraph)
             {
                 const elevator = entity.getComponent<ElevatorComp>(ElevatorComp)!;
                 const graph = this.getScene().getEntityWithName<HellGraph>("HellGraph")
                 graph!.destroyElevator(elevator.startLevel, elevator.endLevel, elevator.shaft)
+                falling.hasBeenDeletedFromGraph = true;
+            }
+
+            if (entity.transform.position.y > 400)
+            {
                 entity.destroy();
             }
         });
