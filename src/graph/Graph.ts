@@ -50,23 +50,23 @@ export class HellGraph extends Entity
                 {
                     case 0:
                     {
-                        const floor1 = this.addFloor(level, i)
+                        const floor1 = this.addFloor(level, i, false)
                         const floor2 = this.addGoal(level, i + 0.5, goalCount++);
                         this.addFloorLink(floor1, floor2);
                         break;
                     }
                     case 1:
                     {
-                        const floor1 = this.addFloor(level, i);
-                        const floor2 = this.addFloor(level, i + 1);
+                        const floor1 = this.addFloor(level, i, false);
+                        const floor2 = this.addFloor(level, i + 1, true);
                         this.addFloorLink(floor1, floor2);
                         break;
                     }
                     case 2:
                     {
-                        const floor1 = this.addFloor(level, i);
+                        const floor1 = this.addFloor(level, i, false);
                         const floor2 = this.addGoal(level, i + 0.5, goalCount++);
-                        const floor3 = this.addFloor(level, i + 1);
+                        const floor3 = this.addFloor(level, i + 1, false);
                         this.addFloorLink(floor1, floor2);
                         this.addFloorLink(floor2, floor3);
                         break;
@@ -74,7 +74,7 @@ export class HellGraph extends Entity
                     case 3:
                     {
                         const floor1 = this.addGoal(level, i + 0.5, goalCount++);
-                        const floor2 = this.addFloor(level, i + 1);
+                        const floor2 = this.addFloor(level, i + 1, true);
                         this.addFloorLink(floor1, floor2);
                         break;
                     }
@@ -144,13 +144,13 @@ export class HellGraph extends Entity
 
     private addGoal(level: number, shaft: number, goal: number)
     {
-        const entity = this.getScene().addEntity(new FloorNode(shaft, level, goal))
+        const entity = this.getScene().addEntity(new FloorNode(shaft, level, false, goal))
         return this.addNode("GOAL", level, shaft, entity)
     }
 
-    private addFloor(level: number, shaft: number): string
+    private addFloor(level: number, shaft: number, left: boolean): string
     {
-        const entity = this.getScene().addEntity(new FloorNode(shaft, level))
+        const entity = this.getScene().addEntity(new FloorNode(shaft, level, left))
         return this.addNode("FLOOR", level, shaft, entity)
     }
 

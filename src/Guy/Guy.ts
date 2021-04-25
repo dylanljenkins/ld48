@@ -4,6 +4,7 @@ import {HellGraph, HellLink, HellNode} from "../graph/Graph";
 import {Link, Node} from "ngraph.graph";
 import {StoppedElevator} from "../Elevator";
 import {getCenterCoords} from "../Util";
+import {Score} from "../Score";
 
 export class Guy extends Entity
 {
@@ -37,6 +38,7 @@ export class GuyDestroyer extends System
         this.runOnEntities((guy: Guy) => {
             if (guy.transform.position.y > 390)
             {
+                guy?.parent?.getScene().getEntityWithName("scoredisp")?.getComponent<Score>(Score)?.sub1();
                 guy.destroy();
             }
         })
@@ -103,7 +105,7 @@ export class GuyMover extends System
             // Found his destination.
             if (path.path.length === 1)
             {
-                // TODO score points!
+                entity?.parent?.getScene().getEntityWithName("scoredisp")?.getComponent<Score>(Score)?.add1();
                 entity.destroy()
             }
 
@@ -159,7 +161,7 @@ export class GuyMover extends System
                         if (stopped && nextNode.id === stopped.node)
                         {
                             // Get on elevator.
-                            GuyMover.moveTowards(entity, nextNode, 0.5, delta, spr, guyLocation);
+                            GuyMover.moveTowards(entity, nextNode, 0.25, delta, spr, guyLocation);
                         }
                         else
                         {
@@ -172,7 +174,7 @@ export class GuyMover extends System
                 }
                 case "FLOOR":
                 {
-                    GuyMover.moveTowards(entity, nextNode, 1, delta, spr, guyLocation)
+                    GuyMover.moveTowards(entity, nextNode, 0.5, delta, spr, guyLocation)
                 }
             }
         })
@@ -185,6 +187,19 @@ export class GuyMover extends System
     {
         const guy = getCenterCoords(source)
         const dest = getCenterCoords(destination.data.entity)
+
+        switch (destination.data.type)
+        {
+            case "ELEVATOR":
+                break;
+            case "GOAL":
+                dest.x -= 8;
+                dest.y -= 4;
+                break;
+            case "FLOOR":
+                dest.y += 10;
+                break;
+        }
 
         const targetDir = MathUtil.pointDirection(guy.x, guy.y, dest.x, dest.y);
         const targetDistance = MathUtil.pointDistance(guy.x, guy.y, dest.x, dest.y);

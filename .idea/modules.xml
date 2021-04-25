@@ -2,7 +2,9 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
+      <module fileurl="file://$PROJECT_DIR$/../lagom-engine/.idea/lagom-engine.iml" filepath="$PROJECT_DIR$/../lagom-engine/.idea/lagom-engine.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/lagom-game-template.iml" filepath="$PROJECT_DIR$/.idea/lagom-game-template.iml" />
+      <module fileurl="file://$PROJECT_DIR$/../lagom/.idea/pix-ecs.iml" filepath="$PROJECT_DIR$/../lagom/.idea/pix-ecs.iml" />
     </modules>
   </component>
 </project>
