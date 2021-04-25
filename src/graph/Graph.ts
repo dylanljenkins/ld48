@@ -83,7 +83,7 @@ export class HellGraph extends Entity
         }
     }
 
-    public addElevator(startLevel: number, endLevel: number, shaft: number, scene: Scene): Elevator
+    public addElevator(startLevel: number, endLevel: number, shaft: number, scene: Scene, reverseStart = false): Elevator
     {
         if (startLevel >= this.levels || startLevel < 0 ||
             endLevel >= this.levels || endLevel < 0 ||
@@ -93,7 +93,7 @@ export class HellGraph extends Entity
             throw Error(`Elevator is invalid. Start: ${startLevel}, End: ${endLevel}, Shaft: ${shaft}`)
         }
 
-        const elevator = new Elevator(startLevel, endLevel, shaft);
+        const elevator = new Elevator(startLevel, endLevel, shaft, reverseStart);
 
         const start = this.addNode("ELEVATOR", startLevel, shaft, elevator)
         const end = this.addNode("ELEVATOR", endLevel, shaft, elevator)
