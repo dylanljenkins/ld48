@@ -12,12 +12,12 @@ export class GuySpawner extends System
 
     update(delta: number): void
     {
-        this.runOnEntities((entity: HellGraph, hellGraphComponent: HellGraphComponent) =>
+        this.runOnEntities((entity: HellGraph) =>
         {
             this.timeout -= delta
             if (this.timeout > 0) return;
 
-            this.timeout = 999999999999999999;
+            this.timeout = 2000;
 
             const nodes: Node<HellNode>[] = []
 
@@ -33,12 +33,11 @@ export class GuySpawner extends System
 
             const goal = potentialGoals[Math.floor(Math.random() * potentialGoals.length)]
 
-            const guy = new Guy("guy", start.data.entity.transform.x, start.data.entity.transform.y, Layers.GUYS)
+            const guy = this.getScene().addEntity(
+                new Guy("guy", start.data.entity.transform.x, start.data.entity.transform.y, Layers.GUYS));
             guy.addComponent(new Path())
             guy.addComponent(new GraphLocation(start.id))
             guy.addComponent(new GraphTarget(goal.id))
-            console.log(guy)
-            this.getScene().addEntity(guy)
         })
     }
 }

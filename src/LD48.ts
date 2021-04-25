@@ -96,21 +96,9 @@ class MainScene extends Scene
         this.addEntity(new MoneyBoard(50, 50, 1000));
         this.addEntity(new PowerUseBoard(600, 10, initialEnergyCost));
 
-        // this.addSystem(new GuySpawner());
-        // this.addSystem(new Pathfinder());
-        // this.addSystem(new GuyMover());
-
-        const startNodeName = getNodeName("FLOOR", 4, 1)
-        const startNode = this.getEntityWithName<FloorNode>(startNodeName)
-        const guy = new Guy("guy", startNode!.transform.x, startNode!.transform.y, Layers.GUYS)
-        guy.addComponent(new Path())
-        guy.addComponent(new GraphLocation(startNodeName))
-        guy.addComponent(new GraphTarget(getNodeName("FLOOR", 1, 2.5)))
-        this.addEntity(guy);
-
-        // TODO PETER move before the guy is added and it stops working.
-        this.addSystem(new Pathfinder())
-        this.addSystem(new GuyMover())
+        this.addSystem(new GuySpawner());
+        this.addSystem(new Pathfinder());
+        this.addSystem(new GuyMover());
 
         this.addGUIEntity(new Diagnostics("white", 5, true));
         this.addEntity(new ElevatorNodeManager("Node Manager", 0, 0, Layers.ELEVATOR_NODE));
