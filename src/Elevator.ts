@@ -54,7 +54,7 @@ export class ElevatorDropper extends System
     {
         this.runOnEntities((entity: Entity) =>
         {
-            entity.transform.position.y += 80 * (delta / 1000)
+            entity.transform.position.y += 160 * (delta / 1000)
         });
     }
 

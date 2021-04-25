@@ -304,7 +304,6 @@ class ElevatorDoor extends Entity
 class ElevatorNodeManager extends Entity
 {
     private shafts: ElevatorNode[][] = [];
-    private droppers: ElevatorDropButton[] = [];
 
     onAdded()
     {
@@ -312,101 +311,94 @@ class ElevatorNodeManager extends Entity
 
         for (let shaft = 0; shaft < 4; shaft++)
         {
-            const nodes = [];
+            const nodes:ElevatorNode[] = [];
             for (let level = 0; level < 5; level++)
             {
-                const node = new ElevatorNode(shaft, level);
+                const node:ElevatorNode = this.addChild(new ElevatorNode(shaft, level, nodes, () => this.regenShaft(nodes)));
                 nodes.push(node);
-                this.addChild(node);
             }
             this.shafts.push(nodes);
         }
-        console.log(this.shafts)
-        const sys = this.getScene().getGlobalSystem<CollisionSystem>(CollisionSystem);
-        if (sys !== null) {
-            this.shafts.forEach(shaft => shaft.forEach(node => {
-                    const buttonColl = node.addComponent(
-                        new CircleCollider(sys, {radius: 10, layer: Layers.ELEVATOR_NODE}));
-                    buttonColl.onTriggerEnter.register((caller, data) => {
-                        if (data.other.layer === Layers.MOUSE) {
-                            if (node.selected)
-                            {
-                                node.deselect();
-                            }
-                            else if (shaft.indexOf(node) > -1)
-                            {
-                                const selectedNodes = shaft.filter(node => node.selected);
+    }
 
-                                if (selectedNodes.length == 1)
-                                {
-                                    const firstNode = selectedNodes[0];
-                                    const start = Math.min(node.level, firstNode.level);
-                                    const end = Math.max(node.level, firstNode.level);
-                                    if (this.parent != null) {
-                                        const elevator = graph.addElevator(start, end, node.shaft, this.parent.getScene());
-
-                                        const nodesInShaft = shaft/*.filter(node => node.level>= start && node.level <= end)*/;
-                                        nodesInShaft.forEach(node => node.hide());
-
-                                        const dropButton = new ElevatorDropButton(node.shaft,start);
-                                        this.addChild(dropButton);
-                                        const buttonColl = dropButton.addComponent(
-                                            new CircleCollider(sys, {radius: 10, layer: Layers.ELEVATOR_NODE}));
-                                        buttonColl.onTriggerEnter.register((caller, data) => {
-                                            if (data.other.layer === Layers.MOUSE) {
-                                                dropButton.destroy();
-                                                elevator.getComponent(ElevatorDestination)?.destroy();
-                                                elevator.getComponent(ElevatorComp)?.destroy();
-                                                elevator.addComponent(new ElevatorFalling());
-                                                shaft.filter(node => node.hidden).forEach(node => node.show());
-                                            }
-                                        });
-                                        this.droppers.push(dropButton)
-
-                                    }
-                                }
-                                else if (selectedNodes.length == 0)
-                                {
-                                    node.select();
-                                }
-                            }
-                        }
-                    });
-                }
-
-            ))
-
-        }
+    regenShaft(shaft: ElevatorNode[]) {
+        const newNodes:ElevatorNode[] = [];
+        shaft.map(node => new ElevatorNode(node.shaft, node.level, shaft,() => this.regenShaft(shaft)))
+             .forEach(node => newNodes.push(this.addChild(node)))
+        shaft.splice(0, shaft.length, ...newNodes)
     }
 }
 
 class ElevatorNode extends Entity
 {
+    private static sprite_width = 16;
+    private static sprite_height = 16;
+
     private _selected = false;
-    private _hidden = false;
-    private circle: Component = new Sprite(sprites.texture(3, 1, 16, 16));
+    private circle: Component = new Sprite(sprites.texture(3, 1, ElevatorNode.sprite_width, ElevatorNode.sprite_height));
 
     level: number
     shaft: number
+    private shaftNodes: ElevatorNode[];
+    private deleteCallback: () => void;
 
-    constructor(shaft: number, level: number)
+    constructor(shaft: number, level: number, shaftNodes: any[], deleteCallback: () => void)
     {
         super(getNodeName("ELEVATOR", level, shaft), 100 + 150 * shaft, level * 70 + 50, Layers.ELEVATOR_DOOR);
         this.level = level;
         this.shaft = shaft;
+        this.shaftNodes = shaftNodes;
+        this.deleteCallback = deleteCallback;
     }
 
     get selected(): boolean {
         return this._selected;
     }
 
-    get hidden(): boolean {
-        return this._hidden;
-    }
-
     onAdded() {
         super.onAdded();
         this.addComponent(this.circle)
+
+        const sys = this.getScene().getGlobalSystem<CollisionSystem>(CollisionSystem);
+        if (sys !== null) {
+            const buttonColl = this.addComponent(
+                new CircleCollider(sys, {xOff: ElevatorNode.sprite_width/2, yOff: ElevatorNode.sprite_height/2,
+                                            radius: 5, layer: Layers.ELEVATOR_NODE}));
+            buttonColl.onTriggerEnter.register((caller, data) => {
+                if (data.other.layer === Layers.MOUSE) {
+                    console.log("mouse click")
+                    if (this.selected)
+                    {
+                        this.deselect();
+                    }
+                    else if (this.shaftNodes.indexOf(this) > -1)
+                    {
+                        const selectedNodes = this.shaftNodes.filter(node => node.selected);
+
+                        if (selectedNodes.length == 1)
+                        {
+                            const firstNode = selectedNodes[0];
+                            firstNode.deselect();
+                            const start = Math.min(this.level, firstNode.level);
+                            const end = Math.max(this.level, firstNode.level);
+                            if (this.parent != null) {
+                                const elevator = graph.addElevator(start, end, this.shaft, this.parent.getScene());
+                                this.shaftNodes.forEach(node => node.destroy());
+                                console.log(firstNode)
+
+                                const dropButton = new ElevatorDropButton(this.shaft,start,elevator, this.deleteCallback);
+                                this.parent.addChild(dropButton);
+                            }
+                        }
+                        else if (selectedNodes.length == 0)
+                        {
+                            this.select();
+                        }
+                    }
+                }
+            });
+
+        }
     }
 
     select()
@@ -424,48 +416,41 @@ class ElevatorNode extends Entity
         this.circle = new Sprite(sprites.texture(3, 1, 16, 16));
         this.addComponent(this.circle)
     }
-
-    hide()
-    {
-        this._hidden = true;
-        this._selected = false;
-        this.removeComponent(this.circle, true);
-    }
-
-    show()
-    {
-        this._hidden = false;
-        this.circle = new Sprite(sprites.texture(3, 1, 16, 16));
-        this.addComponent(this.circle)
-    }
 }
 
 class ElevatorDropButton extends Entity
 {
     level: number
     shaft: number
+    private elevator: any;
+    private clickcallback: () => void;
 
-    constructor(shaft: number, level: number)
+    constructor(shaft: number, level: number, elevator: any, clickCallback: () => void)
     {
-        super(getNodeName("DROP", level, shaft), 80 + 150 * shaft, level * 70 + 50, Layers.ELEVATOR_DOOR);
+        super(getNodeName("DROP", level, shaft), 108 + 150 * shaft, 20, Layers.ELEVATOR_DOOR);
         this.level = level;
         this.shaft = shaft;
+        this.elevator = elevator
+        this.clickcallback = clickCallback;
     }
 
     onAdded() {
         super.onAdded();
         this.addComponent(new RenderCircle(0, 0, 5, 0xff0000, 0x000000));
+
+        const sys = this.getScene().getGlobalSystem<CollisionSystem>(CollisionSystem);
+        if (sys !== null) {
+            const buttonColl = this.addComponent(
+                new CircleCollider(sys, {radius: 0, layer: Layers.ELEVATOR_NODE}));
+            buttonColl.onTriggerEnter.register((caller, data) => {
+                if (data.other.layer === Layers.MOUSE) {
+                    this.destroy();
+                    this.elevator.getComponent(ElevatorDestination)?.destroy();
+                    this.elevator.getComponent(ElevatorComp)?.destroy();
+                    this.elevator.addComponent(new ElevatorFalling());
+                    this.clickcallback()
+                }
+            });
+        }
     }
 }
-
-// class ElevatorCreator extends GlobalSystem
-// {
-//     types(): LagomType<ElevatorNode>[] {
-//         return [];
-//     }
-//
-//     update(delta: number)
-//     {
-//
-//     }
-// }
