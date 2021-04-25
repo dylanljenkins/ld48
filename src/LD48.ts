@@ -341,8 +341,8 @@ class ElevatorDropButton extends Entity
     {
         super.onAdded();
 
-        this.addComponent(new RenderRect(-5, -1, 10, 1, 0xff0000, 0xff0000))
-        this.addComponent(new RenderCircle(0, 0, 5, null, 0xff0000));
+        this.addComponent(new RenderRect(-5, -1, 10, 1, 0xab0000, 0xab0000))
+        this.addComponent(new RenderCircle(0, 0, 5, null, 0xab0000));
 
         const sys = this.getScene().getGlobalSystem<CollisionSystem>(CollisionSystem);
         if (sys !== null)
