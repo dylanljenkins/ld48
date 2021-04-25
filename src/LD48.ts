@@ -36,7 +36,7 @@ import {
 } from "./Elevator";
 import {GuyDestroyer, GuyMover, Pathfinder} from "./Guy/Guy";
 import {GuySpawner} from "./Guy/GuySpawner";
-import {ScoreDisplay, ScoreToastRemover, ScoreUpdater, TimerDisplay} from "./Score";
+import {ScoreDisplay, ScoreToastRemover, ScoreUpdater} from "./Score";
 
 export const sprites = new SpriteSheet(spritesheet, 16, 16);
 export const rooms = new SpriteSheet(roomsheet, 150, 64);
@@ -57,7 +57,7 @@ export enum Layers
 Log.logLevel = LogLevel.DEBUG;
 
 export const hellLayout = [
-    [3, 2, -1],
+    [3, 2, 2],
     [1, -1, 1],
     [0, 1, -1],
     [-1, -1, 3],
@@ -108,7 +108,6 @@ class MainScene extends Scene
         this.addEntity(new ElevatorNodeManager("Node Manager", 0, 0, Layers.ELEVATOR_LINK));
 
         this.addGUIEntity(new ScoreDisplay());
-        this.addGUIEntity(new TimerDisplay());
         this.addSystem(new ScoreUpdater());
         this.addSystem(new ScoreToastRemover());
 

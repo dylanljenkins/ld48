@@ -13,8 +13,16 @@ export class ScoreDisplay extends Entity
     onAdded()
     {
         super.onAdded();
-        this.addComponent(new Score());
+        const score = this.addComponent(new Score());
         this.addComponent(new TextDisp(0, 0, "0", {fill: 0xFFFFFF}));
+
+        this.addComponent(new Timer<Score>(1000, score, false)).onTrigger.register(timerTick)
+
+        function timerTick(caller: Timer<Score>, score: Score)
+        {
+            score.time -= 1;
+            caller.parent.addComponent(new Timer(1000, score)).onTrigger.register(timerTick)
+        }
     }
 }
 
@@ -23,7 +31,7 @@ export class ScoreUpdater extends System
     update(delta: number): void
     {
         this.runOnEntities((entity: ScoreDisplay, text: TextDisp, score: Score) => {
-            text.pixiObj.text = score.score.toString();
+            text.pixiObj.text = score.score.toString() + "\n" + score.time.toString();
         })
     }
 
@@ -31,47 +39,22 @@ export class ScoreUpdater extends System
 
 }
 
-export class TimerDisplay extends Entity
-{
-    constructor()
-    {
-        super("timerdisp", 10, 300, Layers.SCORE);
-    }
-
-    onAdded()
-    {
-        const initialValue = 100;
-
-        super.onAdded();
-        this.addComponent(new TextDisp(0, 0, initialValue.toString(), {fill: 0xFFFFFF}));
-        this.addComponent(new Timer<number>(1000, initialValue - 1, false)).onTrigger.register(timerTick)
-
-        function timerTick(caller: Timer<number>, elapsed: number)
-        {
-            const obj = caller.parent.getComponent<TextDisp>(TextDisp)?.pixiObj;
-            if (obj)
-            {
-                obj.text = elapsed.toString();
-            }
-            caller.parent.addComponent(new Timer(1000, elapsed - 1)).onTrigger.register(timerTick)
-        }
-    }
-}
-
 export class Score extends Component
 {
     score = 0;
+    time = 30;
 
     add1(entity: Entity)
     {
         this.score += 1;
-        this.getScene().addGUIEntity(new ScoreToast(entity.transform.x, entity.transform.y, "+1"));
+        this.time += 10;
+        this.getScene().addGUIEntity(new ScoreToast(entity.transform.x, entity.transform.y, "+5s"));
     }
 
     sub1(entity: Entity)
     {
         this.score -= 1;
-        this.getScene().addGUIEntity(new ScoreToast(entity.transform.x, entity.transform.y, "-1"));
+        // this.getScene().addGUIEntity(new ScoreToast(entity.transform.x, entity.transform.y, "-1"));
     }
 }
 
@@ -89,8 +72,9 @@ class ScoreToast extends Entity
     onAdded()
     {
         super.onAdded();
-        this.addComponent(new TextDisp(MathUtil.randomRange(-10, 10), MathUtil.randomRange(-12, -4), this.disp, {fill: 0xFFFFFF, fontSize: 10}));
-        this.addComponent(new DropMe(-10, false));
+        this.addComponent(new TextDisp(MathUtil.randomRange(-10, 10), MathUtil.randomRange(-12, -4), this.disp,
+            {fill: 0xFFFFFF, fontSize: 10}));
+        this.addComponent(new DropMe(-20, false));
         this.addComponent(new Toasty());
     }
 }
