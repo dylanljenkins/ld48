@@ -6,10 +6,12 @@ import {
     ScreenShake,
     Sprite,
     System,
-    Timer
+    Timer,
+    Util
 } from "lagom-engine";
 import {Layers, sprites} from "./LD48";
 import {getNodeName, HellGraph} from "./graph/Graph";
+import {SoundManager} from "./SoundManager";
 
 enum ElevatorStates
 {
@@ -177,6 +179,7 @@ export class ElevatorMover extends System
             // We made it.
             if (moveDist === distanceToGoal)
             {
+                (this.scene.getEntityWithName("audio") as SoundManager)?.playSound(Util.choose("ding", "ding2"));
                 entity.addComponent(new StoppedElevator(destination.destinationLevel, elevator.shaft))
                 destination.destroy();
 
@@ -200,6 +203,7 @@ export class ElevatorMover extends System
                     restartTimer.onTrigger.register((caller1, data1) =>
                     {
                         caller.parent.addComponent(data1);
+                        (this.scene.getEntityWithName("audio") as SoundManager)?.playSound(Util.choose("moving", "moving2"));
 
                         const stoppedInfo = caller.parent.getComponent<StoppedElevator>(StoppedElevator)
                         if (stoppedInfo === null) return;

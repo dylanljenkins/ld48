@@ -1,5 +1,6 @@
 import {getNodeName, HellGraph} from "./graph/Graph";
 import {
+    AudioAtlas,
     CircleCollider,
     CollisionMatrix,
     CollisionSystem,
@@ -38,6 +39,7 @@ import {
 import {GuyDestroyer, GuyFollowSystem, GuyMover, Pathfinder, Spinner} from "./Guy/Guy";
 import {GuySpawner} from "./Guy/GuySpawner";
 import {ScoreDisplay, ScoreToastRemover, ScoreUpdater} from "./Score";
+import {SoundManager} from "./SoundManager";
 
 export const sprites = new SpriteSheet(spritesheet, 16, 16);
 export const rooms = new SpriteSheet(roomsheet, 150, 64);
@@ -67,9 +69,23 @@ export const hellLayout = [
 
 export class LD48 extends Game
 {
+    static muted = false;
+    static musicPlaying = false;
+    static audioAtlas: AudioAtlas = new AudioAtlas();
+
     constructor()
     {
         super({width: 640, height: 360, resolution: 2, backgroundColor: 0x45283C});
+
+        LD48.audioAtlas.load("ding", "/Sound/ding.wav");
+        LD48.audioAtlas.load("ding2", "/Sound/ding2.wav");
+        LD48.audioAtlas.load("moving", "/Sound/moving.wav").volume(1.2);
+        LD48.audioAtlas.load("moving2", "/Sound/moving2.wav").volume(1.2);
+
+        const music = LD48.audioAtlas.load("music", "/Sound/music.mp3");
+        music.loop(true);
+        music.volume(0.1);
+
         this.setScene(new MainScene(this));
     }
 }
@@ -115,6 +131,8 @@ class MainScene extends Scene
         this.addSystem(new ScoreToastRemover());
 
         this.addGlobalSystem(new ScreenShaker());
+
+        this.addEntity(new SoundManager());
 
         this.addBackground();
     }
