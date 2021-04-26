@@ -20,6 +20,7 @@ export class ScoreDisplay extends Entity
         function timerTick(caller: Timer<Score>, score: Score)
         {
             score.time -= 1;
+            score.elapsed += 1;
             caller.parent.addComponent(new Timer(1000, score)).onTrigger.register(timerTick)
         }
     }
@@ -30,7 +31,7 @@ export class ScoreUpdater extends System
     update(delta: number): void
     {
         this.runOnEntities((entity: ScoreDisplay, text: TextDisp, score: Score) => {
-            text.pixiObj.text = score.score.toString() + "\n" + score.time.toString();
+            text.pixiObj.text = score.elapsed.toString() + "\n" + score.time.toString();
         })
     }
 
@@ -40,20 +41,22 @@ export class ScoreUpdater extends System
 
 export class Score extends Component
 {
-    score = 0;
+    elapsed = 0;
     time = 30;
 
     add1(entity: Entity)
     {
-        this.score += 1;
-        this.time += 10;
-        this.getScene().addGUIEntity(new ScoreToast(entity.transform.x, entity.transform.y, "+5s"));
+        const addedTime = 10;
+        this.time += addedTime;
+        this.getScene().addGUIEntity(new ScoreToast(entity.transform.x, entity.transform.y, `+${addedTime}s`));
     }
 
     sub1(entity: Entity, offscreen = false)
     {
-        this.score -= 1;
-        this.getScene().addGUIEntity(new ScoreToast(entity.transform.x, offscreen ? 350 : entity.transform.y, "-1"));
+        const removedTime = 5;
+        this.time -= removedTime;
+        this.getScene().addGUIEntity(new ScoreToast(entity.transform.x, offscreen ? 350 : entity.transform.y,
+            `-${removedTime}s`));
     }
 }
 
