@@ -89,8 +89,8 @@ export class LD48 extends Game
     {
         super({width: 640, height: 360, resolution: 2, backgroundColor: 0x45283C});
 
-        LD48.audioAtlas.load("ding", ding);
-        LD48.audioAtlas.load("ding2", ding2);
+        LD48.audioAtlas.load("ding", ding).volume(0);
+        LD48.audioAtlas.load("ding2", ding2).volume(0);
         LD48.audioAtlas.load("moving", moving).volume(1.2);
         LD48.audioAtlas.load("moving2", moving2).volume(1.2);
         LD48.audioAtlas.load("pop", pop2).volume(0.3);

@@ -43,7 +43,7 @@ export class ScoreUpdater extends System
 export class Score extends Component
 {
     elapsed = 0;
-    time = 30;
+    time = 90;
 
     add1(entity: Entity)
     {
@@ -55,7 +55,7 @@ export class Score extends Component
 
     sub1(entity: Entity, offscreen = false)
     {
-        const removedTime = 5;
+        const removedTime = 15;
         this.time -= removedTime;
         this.getScene().addGUIEntity(new ScoreToast(entity.transform.x, offscreen ? 350 : entity.transform.y,
             `-${removedTime}s`));

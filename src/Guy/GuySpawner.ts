@@ -5,6 +5,8 @@ import {Node} from "ngraph.graph";
 import {DropMe} from "../Elevator";
 import {GraphLocation, GraphTarget, Guy, Path} from "./Guy";
 import {SoundManager} from "../SoundManager";
+import {Score, ScoreDisplay} from "../Score";
+import {Sco} from "grommet-icons";
 
 export class GuySpawner extends System
 {
@@ -19,18 +21,32 @@ export class GuySpawner extends System
             this.timeout -= delta
             if (this.timeout > 0) return;
 
-            this.timeout = 5000;
+            const score = this.getScene().getEntityWithName<ScoreDisplay>("scoredisp")?.getComponent<Score>(Score)
+            const elapsed = score!.elapsed
 
-            // Spawn is every 5 seconds, but we might want to create some more dudes if we are running out.
             let times = 1;
-            const currentGuys = this.getScene().entities.filter(value => value.name === "guy").length;
-            if (currentGuys < 4)
+
+            if (elapsed < 30)
             {
-                times = 3;
+                this.timeout = 10000;
             }
-            else if (currentGuys < 7)
+            else if (elapsed < 60)
             {
-                times = 2;
+                this.timeout = 5000;
+            }
+            else
+            {
+                this.timeout = 5000;
+
+                const currentGuys = this.getScene().entities.filter(value => value.name === "guy").length;
+                if (currentGuys < 4)
+                {
+                    times = 3;
+                }
+                else if (currentGuys < 7)
+                {
+                    times = 2;
+                }
             }
 
             for (let i = 0; i < times; i++)
