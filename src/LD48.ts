@@ -81,6 +81,11 @@ export class LD48 extends Game
         LD48.audioAtlas.load("ding2", "/Sound/ding2.wav");
         LD48.audioAtlas.load("moving", "/Sound/moving.wav").volume(1.2);
         LD48.audioAtlas.load("moving2", "/Sound/moving2.wav").volume(1.2);
+        LD48.audioAtlas.load("pop", "/Sound/pop2.wav").volume(0.3);
+        LD48.audioAtlas.load("portal", "/Sound/portal2.wav").volume(0.5);
+        LD48.audioAtlas.load("spawn", "/Sound/spawn.wav").volume(0.3);
+        LD48.audioAtlas.load("crash", "/Sound/crash.wav").volume(0.04);
+        LD48.audioAtlas.load("snip", "/Sound/snip.wav").volume(0.8);
 
         const music = LD48.audioAtlas.load("music", "/Sound/music.mp3");
         music.loop(true);
@@ -378,6 +383,7 @@ class ElevatorDropButton extends Entity
             buttonColl.onTriggerEnter.register((caller, data) => {
                 if (data.other.layer === Layers.MOUSE)
                 {
+                    (this.getScene().getEntityWithName("audio") as SoundManager)?.playSound("snip");
                     this.destroy();
                     this.elevator.getComponent(ElevatorDestination)?.destroy();
                     this.elevator.addComponent(new DropMe(80));

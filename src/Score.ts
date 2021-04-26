@@ -1,6 +1,7 @@
 import {Component, Entity, MathUtil, System, TextDisp, Timer} from "lagom-engine";
 import {Layers} from "./LD48";
 import {DropMe} from "./Elevator";
+import {SoundManager} from "./SoundManager";
 
 export class ScoreDisplay extends Entity
 {
@@ -49,6 +50,7 @@ export class Score extends Component
         const addedTime = 10;
         this.time += addedTime;
         this.getScene().addGUIEntity(new ScoreToast(entity.transform.x, entity.transform.y, `+${addedTime}s`));
+        (this.getScene().getEntityWithName("audio") as SoundManager)?.playSound("portal");
     }
 
     sub1(entity: Entity, offscreen = false)

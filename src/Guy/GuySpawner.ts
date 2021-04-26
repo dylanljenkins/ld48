@@ -4,6 +4,7 @@ import {Layers, sprites} from "../LD48";
 import {Node} from "ngraph.graph";
 import {DropMe} from "../Elevator";
 import {GraphLocation, GraphTarget, Guy, Path} from "./Guy";
+import {SoundManager} from "../SoundManager";
 
 export class GuySpawner extends System
 {
@@ -76,6 +77,7 @@ export class GuySpawner extends System
                             animationSpeed: 200
                         }
                     }]));
+                    (this.scene.getEntityWithName("audio") as SoundManager)?.playSound("spawn");
                 })
 
                 guyPortal.addComponent(new Timer(800, [xMod, yMod])).onTrigger.register((caller, data) => {
@@ -102,7 +104,7 @@ export class GuySpawner extends System
                                     animationSpeed: 200
                                 }
                             }
-                        ]))
+                        ]));
                         data.addComponent(new Timer(600, null)).onTrigger.register(caller2 => caller2.parent.destroy());
                         caller1.parent.destroy();
                     })
