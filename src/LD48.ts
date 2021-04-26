@@ -27,6 +27,8 @@ import {
 import spritesheet from './Art/spritesheet.png';
 import roomsheet from './Art/chambers.png';
 import portalSheet from './Art/portals.png';
+import gameOverImg from './Art/game-over.png';
+import startScreenImg from './Art/start-screen.png';
 import {
     DoorStateSystem,
     DropMe,
@@ -45,6 +47,9 @@ export const sprites = new SpriteSheet(spritesheet, 16, 16);
 export const rooms = new SpriteSheet(roomsheet, 150, 64);
 export const portals = new SpriteSheet(portalSheet, 32, 32);
 
+const startScreen = new SpriteSheet(startScreenImg, 640, 480);
+const gameOverScreen = new SpriteSheet(gameOverImg, 640, 480);
+
 export enum Layers
 {
     BACKGROUND,
@@ -57,7 +62,7 @@ export enum Layers
     MOUSE
 }
 
-Log.logLevel = LogLevel.DEBUG;
+Log.logLevel = LogLevel.NONE;
 
 export const hellLayout = [
     [3, 2, 2],
