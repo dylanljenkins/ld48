@@ -81,7 +81,7 @@ export class LD48 extends Game
         LD48.audioAtlas.load("ding2", "/Sound/ding2.wav");
         LD48.audioAtlas.load("moving", "/Sound/moving.wav").volume(1.2);
         LD48.audioAtlas.load("moving2", "/Sound/moving2.wav").volume(1.2);
-        LD48.audioAtlas.load("pop", "/Sound/pop.wav").volume(0.3);
+        LD48.audioAtlas.load("pop", "/Sound/pop2.wav").volume(0.3);
         LD48.audioAtlas.load("portal", "/Sound/portal2.wav").volume(0.5);
         LD48.audioAtlas.load("spawn", "/Sound/spawn.wav").volume(0.3);
         LD48.audioAtlas.load("crash", "/Sound/crash.wav").volume(0.04);
