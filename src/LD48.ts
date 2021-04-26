@@ -54,6 +54,7 @@ import portal from "./Sound/portal2.wav";
 import spawn from "./Sound/spawn.wav";
 import snip from "./Sound/snip.wav";
 import rock from "./Sound/music.mp3";
+import {TextDisp} from "lagom-engine/dist";
 
 export const sprites = new SpriteSheet(spritesheet, 16, 16);
 export const rooms = new SpriteSheet(roomsheet, 150, 64);
@@ -207,7 +208,10 @@ export class GameOverScene extends Scene
     {
         super.onAdded();
 
-        this.addGUIEntity(new ScreenCard(gameOverScreen.textureFromPoints(0, 0, 640, 360), 1));
+        const card = this.addGUIEntity(new ScreenCard(gameOverScreen.textureFromPoints(0, 0, 640, 360), 1));
+
+        card.addComponent(
+            new TextDisp(640 / 2, 360 / 2, "Score: " + this.score.toString(), {fill: 0xFFFFFF})).pixiObj.anchor.x = 0.5
 
         this.addGlobalSystem(new TimerSystem());
         this.addGlobalSystem(new FrameTriggerSystem());
