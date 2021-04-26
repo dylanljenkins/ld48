@@ -29,6 +29,7 @@ import roomsheet from './Art/chambers.png';
 import portalSheet from './Art/portals.png';
 import gameOverImg from './Art/game-over.png';
 import startScreenImg from './Art/start-screen.png';
+import scoreBackImg from './Art/scoreback.png';
 import {
     DoorStateSystem,
     DropMe,
@@ -59,6 +60,7 @@ import {TextDisp} from "lagom-engine/dist";
 export const sprites = new SpriteSheet(spritesheet, 16, 16);
 export const rooms = new SpriteSheet(roomsheet, 150, 64);
 export const portals = new SpriteSheet(portalSheet, 32, 32);
+export const scoreBack = new SpriteSheet(scoreBackImg, 122, 78);
 
 const startScreen = new SpriteSheet(startScreenImg, 640, 360);
 export const gameOverScreen = new SpriteSheet(gameOverImg, 640, 360);
@@ -310,6 +312,9 @@ class MainScene extends Scene
                     {xOffset: 8 + 100 + 150 * j, yOffset: i * 70 + 3}));
             }
         }
+
+        background.addComponent(new Sprite(scoreBack.textureFromPoints(0, 0, 122, 78),
+            {xOffset: 270, yOffset: 100}));
     }
 }
 
@@ -586,7 +591,5 @@ class ElevatorLinkMiddle extends Entity
             }
             this.addComponent(new Sprite(sprites.texture(7, 1, 16, 16), {yOffset: currentOffsety}))
         }
-
-
     }
 }

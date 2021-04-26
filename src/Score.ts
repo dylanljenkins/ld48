@@ -1,5 +1,5 @@
 import {Component, Entity, MathUtil, System, TextDisp, Timer} from "lagom-engine";
-import {GameOverScene, gameOverScreen, Layers, ScreenCard} from "./LD48";
+import {GameOverScene, Layers} from "./LD48";
 import {DropMe} from "./Elevator";
 import {SoundManager} from "./SoundManager";
 
@@ -7,14 +7,14 @@ export class ScoreDisplay extends Entity
 {
     constructor()
     {
-        super("scoredisp", 10, 100, Layers.SCORE);
+        super("scoredisp", 286, 119, Layers.SCORE);
     }
 
     onAdded()
     {
         super.onAdded();
         const score = this.addComponent(new Score());
-        this.addComponent(new TextDisp(0, 0, "0", {fill: 0xFFFFFF}));
+        this.addComponent(new TextDisp(0, 0, "0", {fill: 0x696a6a, fontSize: 18}));
 
         this.addComponent(new Timer<Score>(1000, score, false)).onTrigger.register(timerTick)
 
@@ -40,7 +40,7 @@ export class ScoreUpdater extends System
     update(delta: number): void
     {
         this.runOnEntities((entity: ScoreDisplay, text: TextDisp, score: Score) => {
-            text.pixiObj.text = score.elapsed.toString() + "\n" + score.time.toString();
+            text.pixiObj.text = `Score: ${score.elapsed}\nTime: ${score.time}`;
         })
     }
 
