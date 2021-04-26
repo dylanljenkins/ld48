@@ -88,8 +88,7 @@ export class GuySpawner extends System
                     guycoming.addComponent(new Sprite(sprites.texture(0, 0, 8, 8)));
                     guycoming.addComponent(new DropMe(20, false));
                     guycoming.addComponent(new Timer(500, guyPortal)).onTrigger.register((caller1, data) => {
-                        const guy = caller1.getScene().addEntity(
-                            new Guy(x, y, goalId));
+                        const guy = caller1.getScene().addEntity(new Guy(x, y, goalId));
                         guy.addComponent(new Path())
                         guy.addComponent(new GraphLocation(start.id))
                         guy.addComponent(new GraphTarget(goal.id))

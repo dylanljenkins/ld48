@@ -35,7 +35,7 @@ import {
     ElevatorMover,
     EntityDropper
 } from "./Elevator";
-import {GuyDestroyer, GuyMover, Pathfinder, Spinner} from "./Guy/Guy";
+import {GuyDestroyer, GuyFollowSystem, GuyMover, Pathfinder, Spinner} from "./Guy/Guy";
 import {GuySpawner} from "./Guy/GuySpawner";
 import {ScoreDisplay, ScoreToastRemover, ScoreUpdater} from "./Score";
 
@@ -106,6 +106,7 @@ class MainScene extends Scene
         this.addSystem(new GuyMover());
         this.addSystem(new GuyDestroyer());
         this.addSystem(new Spinner());
+        this.addSystem(new GuyFollowSystem());
 
         this.addEntity(new ElevatorNodeManager("Node Manager", 0, 0, Layers.ELEVATOR_LINK));
 

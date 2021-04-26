@@ -19,18 +19,45 @@ import {DropMe, StoppedElevator} from "../Elevator";
 import {getCenterCoords} from "../Util";
 import {Score} from "../Score";
 
+class GuyFollower extends Component
+{
+    constructor(readonly guy: Guy)
+    {
+        super();
+    }
+}
+
+export class GuyFollowSystem extends System
+{
+    update(delta: number): void
+    {
+        this.runOnEntities((entity: Entity, follow: GuyFollower) => {
+            entity.transform.x = follow.guy.transform.x;
+            entity.transform.y = follow.guy.transform.y;
+        });
+    }
+
+    types = () => [GuyFollower];
+}
+
 export class Guy extends Entity
 {
+    private indicator?: Entity;
+
     constructor(x: number, y: number, readonly goalId: number)
     {
         super("guy", x, y, Layers.GUYS);
     }
 
+    onRemoved()
+    {
+        this.indicator?.destroy();
+        super.onRemoved();
+    }
+
     onAdded()
     {
         super.onAdded();
-        this.addComponent(new Sprite(sprites.textureFromPoints(this.goalId * 8, 48, 8, 8),
-            {xOffset: 4, yOffset: -4, xAnchor: 0.5, yAnchor: 0.5}));
         this.addComponent(new AnimatedSpriteController(0, [
             {
                 id: 0,
@@ -47,20 +74,27 @@ export class Guy extends Entity
             }
         ]));
 
+        this.indicator =
+            this.getScene().addEntity(new Entity("spinner", this.transform.x, this.transform.y, Layers.GUYS));
+        this.indicator?.addComponent(new Sprite(sprites.textureFromPoints(this.goalId * 8, 48, 8, 8),
+            {xOffset: 4, yOffset: -4, xAnchor: 0.5, yAnchor: 0.5}));
+
+        this.indicator?.addComponent(new GuyFollower(this));
+
         // After 15 seconds, trigger stage 1.
-        this.addComponent(new Timer(15000, null)).onTrigger.register(caller => {
+        this.indicator?.addComponent(new Timer(15000, this)).onTrigger.register((caller, data) => {
             caller.parent.addComponent(new SpinMe(2));
 
             // After 20 seconds, increase spin speed
-            caller.parent.addComponent(new Timer(10000, null)).onTrigger.register(caller2 =>
+            caller.parent.addComponent(new Timer(10000, data)).onTrigger.register((caller2, data2) =>
             {
                 const sp = caller2.getEntity().getComponent<SpinMe>(SpinMe);
                 if (sp !== null) sp.speed = 4;
-                caller2.parent.addComponent(new Timer(10000, null)).onTrigger.register(caller3 => {
+                caller2.parent.addComponent(new Timer(10000, data2)).onTrigger.register((caller3, data3) => {
                     const sp = caller3.getEntity().getComponent<SpinMe>(SpinMe);
                     if (sp !== null) sp.speed = 6;
 
-                    caller3.parent.addComponent(new Timer(10000, null)).onTrigger.register(caller4 => {
+                    caller3.parent.addComponent(new Timer(10000, data3)).onTrigger.register((caller4, data4) => {
                         // POP
                         caller4.parent.addComponent(new AnimatedSprite(sprites.textureSliceFromRow(4, 0, 7),
                             {
@@ -71,10 +105,11 @@ export class Guy extends Entity
                             }));
                         caller4.parent.addComponent(new ScreenShake(0.1, 500));
 
-                        caller4.parent.addComponent(new Timer(700, null)).onTrigger.register(caller5 => {
+                        caller4.parent.addComponent(new Timer(700, data4)).onTrigger.register((caller5, data5) => {
                             caller5?.parent?.getScene().getEntityWithName("scoredisp")?.getComponent<Score>(Score)
                                    ?.sub1(caller5.parent);
                             caller5?.parent.destroy();
+                            data5.destroy();
                         })
                     });
                 });
@@ -83,7 +118,7 @@ export class Guy extends Entity
     }
 }
 
-class SpinMe extends Component
+export class SpinMe extends Component
 {
     constructor(public speed: number)
     {
