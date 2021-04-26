@@ -43,6 +43,18 @@ import {GuySpawner} from "./Guy/GuySpawner";
 import {ScoreDisplay, ScoreToastRemover, ScoreUpdater} from "./Score";
 import {SoundManager} from "./SoundManager";
 
+import crash from "./Sound/crash.wav";
+import ding from "./Sound/ding.wav";
+import ding2 from "./Sound/ding2.wav";
+import moving from "./Sound/moving.wav";
+import moving2 from "./Sound/moving2.wav";
+import pop from "./Sound/pop.wav";
+import pop2 from "./Sound/pop2.wav";
+import portal from "./Sound/portal2.wav";
+import spawn from "./Sound/spawn.wav";
+import snip from "./Sound/snip.wav";
+import rock from "./Sound/music.mp3";
+
 export const sprites = new SpriteSheet(spritesheet, 16, 16);
 export const rooms = new SpriteSheet(roomsheet, 150, 64);
 export const portals = new SpriteSheet(portalSheet, 32, 32);
@@ -82,17 +94,17 @@ export class LD48 extends Game
     {
         super({width: 640, height: 360, resolution: 2, backgroundColor: 0x45283C});
 
-        LD48.audioAtlas.load("ding", "/Sound/ding.wav");
-        LD48.audioAtlas.load("ding2", "/Sound/ding2.wav");
-        LD48.audioAtlas.load("moving", "/Sound/moving.wav").volume(1.2);
-        LD48.audioAtlas.load("moving2", "/Sound/moving2.wav").volume(1.2);
-        LD48.audioAtlas.load("pop", "/Sound/pop2.wav").volume(0.3);
-        LD48.audioAtlas.load("portal", "/Sound/portal2.wav").volume(0.5);
-        LD48.audioAtlas.load("spawn", "/Sound/spawn.wav").volume(0.3);
-        LD48.audioAtlas.load("crash", "/Sound/crash.wav").volume(0.04);
-        LD48.audioAtlas.load("snip", "/Sound/snip.wav").volume(0.8);
+        LD48.audioAtlas.load("ding", ding);
+        LD48.audioAtlas.load("ding2", ding2);
+        LD48.audioAtlas.load("moving", moving).volume(1.2);
+        LD48.audioAtlas.load("moving2", moving2).volume(1.2);
+        LD48.audioAtlas.load("pop", pop2).volume(0.3);
+        LD48.audioAtlas.load("portal", portal).volume(0.5);
+        LD48.audioAtlas.load("spawn", spawn).volume(0.3);
+        LD48.audioAtlas.load("crash", crash).volume(0.04);
+        LD48.audioAtlas.load("snip", snip).volume(0.8);
 
-        const music = LD48.audioAtlas.load("music", "/Sound/music.mp3");
+        const music = LD48.audioAtlas.load("music", rock);
         music.loop(true);
         music.volume(0.1);
 
