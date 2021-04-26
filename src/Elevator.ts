@@ -153,6 +153,7 @@ export class ElevatorDestroyer extends System
             {
                 entity.destroy();
                 this.getScene().getEntityWithName<HellGraph>("HellGraph")?.addComponent(new ScreenShake(0.25, 150));
+                (this.scene.getEntityWithName("audio") as SoundManager)?.playSound("crash");
             }
         });
     }

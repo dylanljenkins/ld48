@@ -18,6 +18,7 @@ import {Link, Node} from "ngraph.graph";
 import {DropMe, StoppedElevator} from "../Elevator";
 import {getCenterCoords} from "../Util";
 import {Score} from "../Score";
+import {SoundManager} from "../SoundManager";
 
 class GuyFollower extends Component
 {
@@ -96,6 +97,7 @@ export class Guy extends Entity
 
                     caller3.parent.addComponent(new Timer(10000, data3)).onTrigger.register((caller4, data4) => {
                         // POP
+                        (this.scene.getEntityWithName("audio") as SoundManager)?.playSound("pop");
                         caller4.parent.addComponent(new AnimatedSprite(sprites.textureSliceFromRow(4, 0, 7),
                             {
                                 animationEndAction: AnimationEnd.STOP,
