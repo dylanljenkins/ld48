@@ -59,8 +59,8 @@ export const sprites = new SpriteSheet(spritesheet, 16, 16);
 export const rooms = new SpriteSheet(roomsheet, 150, 64);
 export const portals = new SpriteSheet(portalSheet, 32, 32);
 
-const startScreen = new SpriteSheet(startScreenImg, 640, 480);
-const gameOverScreen = new SpriteSheet(gameOverImg, 640, 480);
+const startScreen = new SpriteSheet(startScreenImg, 640, 360);
+export const gameOverScreen = new SpriteSheet(gameOverImg, 640, 360);
 
 export enum Layers
 {
@@ -112,8 +112,115 @@ export class LD48 extends Game
     }
 }
 
+class ClickAction extends Component
+{
+    constructor(readonly action: number)
+    {
+        super();
+    }
+
+    onAction()
+    {
+        switch (this.action)
+        {
+            // start game
+            case 0:
+            {
+                (this.getScene() as MainScene).startGame();
+                this.getEntity().destroy();
+                break;
+            }
+            // restart
+            case 1:
+            {
+                this.getScene().entities.forEach(x => x.destroy());
+                this.getScene().systems.forEach(x => x.destroy());
+                this.getScene().globalSystems.forEach(x => x.destroy());
+                this.getScene().getGame().setScene(new MainScene(this.getScene().getGame()));
+                break;
+            }
+        }
+    }
+}
+
+class ClickListener extends GlobalSystem
+{
+    types(): LagomType<Component>[]
+    {
+        return [ClickAction];
+    }
+
+    update(delta: number): void
+    {
+        this.runOnComponents((clickActions: ClickAction[]) => {
+
+            if (Mouse.isButtonPressed(0))
+            {
+                for (const action of clickActions)
+                {
+                    action.onAction();
+                    action.destroy();
+                }
+            }
+        });
+    }
+}
+
+export class ScreenCard extends Entity
+{
+    constructor(readonly texture: any, readonly clickAction: number, layer: number = 0)
+    {
+        super("card", 0, 0, layer);
+    }
+
+    onAdded(): void
+    {
+        super.onAdded();
+
+        this.addComponent(new Sprite(this.texture));
+
+        // Game reload. Skip to gameplay.
+        if (!MainScene.firstLoad && this.clickAction === 0)
+        {
+            const action = this.addComponent(new ClickAction(this.clickAction));
+            action.onAction();
+        }
+        else
+        {
+            MainScene.firstLoad = false;
+
+            this.addComponent(new Timer(500, null)).onTrigger.register(() => {
+                this.addComponent(new ClickAction(this.clickAction));
+            });
+        }
+    }
+}
+
+export class GameOverScene extends Scene
+{
+    constructor(game: Game, readonly score: number)
+    {
+        super(game);
+    }
+
+    onAdded()
+    {
+        super.onAdded();
+
+        this.addGUIEntity(new ScreenCard(gameOverScreen.textureFromPoints(0, 0, 640, 360), 1));
+
+        this.addGlobalSystem(new TimerSystem());
+        this.addGlobalSystem(new FrameTriggerSystem());
+        this.addGlobalSystem(new ClickListener());
+        this.addEntity(new SoundManager());
+    }
+}
+
+
 class MainScene extends Scene
 {
+    static firstLoad = true;
+
     onAdded()
     {
         // graph.printGraph()
@@ -122,6 +229,16 @@ class MainScene extends Scene
 
         super.onAdded();
 
+        this.addGUIEntity(new ScreenCard(startScreen.textureFromPoints(0, 0, 640, 360), 0));
+
+        this.addGlobalSystem(new TimerSystem());
+        this.addGlobalSystem(new FrameTriggerSystem());
+        this.addGlobalSystem(new ClickListener());
+        this.addEntity(new SoundManager());
+    }
+
+    startGame()
+    {
         const graph = this.addEntity(new HellGraph());
         graph.initGraph();
 
@@ -129,9 +246,6 @@ class MainScene extends Scene
         collisionMatrix.addCollision(Layers.MOUSE, Layers.ELEVATOR_NODE);
         this.addGlobalSystem(new DiscreteCollisionSystem(collisionMatrix));
         this.addGlobalSystem(new MouseEventSystem());
-
-        this.addGlobalSystem(new TimerSystem());
-        this.addGlobalSystem(new FrameTriggerSystem());
 
         this.addSystem(new DoorStateSystem());
         this.addSystem(new ElevatorMover());
@@ -153,8 +267,6 @@ class MainScene extends Scene
         this.addSystem(new ScoreToastRemover());
 
         this.addGlobalSystem(new ScreenShaker());
-
-        this.addEntity(new SoundManager());
 
         this.addBackground();
     }

@@ -1,5 +1,5 @@
 import {Component, Entity, MathUtil, System, TextDisp, Timer} from "lagom-engine";
-import {Layers} from "./LD48";
+import {GameOverScene, gameOverScreen, Layers, ScreenCard} from "./LD48";
 import {DropMe} from "./Elevator";
 import {SoundManager} from "./SoundManager";
 
@@ -22,7 +22,15 @@ export class ScoreDisplay extends Entity
         {
             score.time -= 1;
             score.elapsed += 1;
-            caller.parent.addComponent(new Timer(1000, score)).onTrigger.register(timerTick)
+
+            if (score.time <= 0)
+            {
+                caller.getScene().getGame().setScene(new GameOverScene(caller.getScene().getGame(), score.elapsed));
+            }
+            else
+            {
+                caller.parent.addComponent(new Timer(1000, score)).onTrigger.register(timerTick);
+            }
         }
     }
 }
