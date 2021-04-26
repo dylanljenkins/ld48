@@ -84,7 +84,7 @@ export class LD48 extends Game
         LD48.audioAtlas.load("pop", "/Sound/pop.wav").volume(0.3);
         LD48.audioAtlas.load("portal", "/Sound/portal2.wav").volume(0.5);
         LD48.audioAtlas.load("spawn", "/Sound/spawn.wav").volume(0.3);
-        LD48.audioAtlas.load("crash", "/Sound/crash.wav").volume(0.15);
+        LD48.audioAtlas.load("crash", "/Sound/crash.wav").volume(0.04);
         LD48.audioAtlas.load("snip", "/Sound/snip.wav").volume(0.8);
 
         const music = LD48.audioAtlas.load("music", "/Sound/music.mp3");
